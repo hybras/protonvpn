@@ -7,3 +7,4 @@ fn main() {
 }
 
 mod cli;
+mod vpn;
