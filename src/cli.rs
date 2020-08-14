@@ -27,6 +27,7 @@ struct Connect {
     #[structopt(default_value)]
     /// Determine the protocol (UDP or TCP).
     protocol: ConnectionProtocol,
+    #[structopt(subcommand, name = "mode")]
     connection_option: ConnectOptions,
 }
 
@@ -35,7 +36,9 @@ enum ConnectOptions {
     /// Select the fastest ProtonVPN server.
     Fastest,
     /// Determine the country for fastest connect.
-    CountryCode(String),
+    CountryCode {
+        cc: String,
+    },
     /// Connect to the fastest Secure-Core server.
     SecureCore,
     /// Connect to the fastest torrent server.
@@ -44,7 +47,9 @@ enum ConnectOptions {
     Tor,
     /// Select a random ProtonVPN server.
     Random,
-    Server(String),
+    Server {
+        server: String,
+    },
 }
 
 #[derive(Debug)]
