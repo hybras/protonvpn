@@ -24,7 +24,8 @@ enum ConnectOptions {
     SecureCore,
     P2P,
     Tor,
-    Random
+    Random,
+    Server(String)
 }
 
 #[derive(Debug)]
