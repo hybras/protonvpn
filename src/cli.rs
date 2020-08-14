@@ -4,20 +4,27 @@ use structopt::StructOpt;
 #[derive(StructOpt, Debug)]
 #[structopt(name = "basic")]
 pub enum CliOptions {
-    Connect { protocol: ConnectionProtocol },
+    Init,
+    Connect {
+        protocol: ConnectionProtocol,
+        connection_option: ConnectOptions,
+    },
     Reconnect,
     Disconnect,
     Status,
     Configure,
     Refresh,
     Examples,
-    Init,
 }
 
+#[derive(Debug, StructOpt)]
 struct Connect {
-    protocol: ConnectionProtocol
+    #[structopt(default_value)]
+    protocol: ConnectionProtocol,
+    connection_option: ConnectOptions,
 }
 
+#[derive(Debug, StructOpt)]
 enum ConnectOptions {
     Fastest,
     CountryCode(String),
@@ -25,13 +32,29 @@ enum ConnectOptions {
     P2P,
     Tor,
     Random,
-    Server(String)
+    Server(String),
 }
 
 #[derive(Debug)]
 pub enum ConnectionProtocol {
     TCP,
     UDP,
+}
+
+impl ToString for ConnectionProtocol {
+    fn to_string(&self) -> String {
+        match self {
+            Self::TCP => "tcp",
+            Self::UDP => "udp",
+        }
+        .into()
+    }
+}
+
+impl Default for ConnectionProtocol {
+    fn default() -> Self {
+        Self::UDP
+    }
 }
 
 impl FromStr for ConnectionProtocol {
