@@ -1,5 +1,9 @@
+use crate::cli::CliOptions;
+use structopt::StructOpt;
+
 fn main() {
-    println!("Hello, world!");
+    let opt = CliOptions::from_args();
+    println!("{:?}", opt);
 }
 
 mod cli;
