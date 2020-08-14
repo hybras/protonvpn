@@ -8,6 +8,7 @@ pub enum CliOptions {
     Init,
     /// Connect to a ProtonVPN server.
     Connect {
+        /// See ConnectOptions for more info
         #[structopt(subcommand, name = "mode")]
         connection_option: ConnectOptions,
         /// Determine the protocol (UDP or TCP).
