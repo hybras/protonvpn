@@ -7,7 +7,13 @@ pub enum CliOptions {
     /// Initialize a ProtonVPN profile.
     Init,
     /// Connect to a ProtonVPN server.
-    Connect(Connect),
+    Connect {
+        #[structopt(subcommand, name = "mode")]
+        connection_option: ConnectOptions,
+        /// Determine the protocol (UDP or TCP).
+        #[structopt(default_value, long, short)]
+        protocol: ConnectionProtocol,
+    },
     /// Reconnect the currently active session or connect to the last connected server.
     Reconnect,
     /// Disconnect the current session.
@@ -23,16 +29,7 @@ pub enum CliOptions {
 }
 
 #[derive(Debug, StructOpt)]
-struct Connect {
-    #[structopt(default_value)]
-    /// Determine the protocol (UDP or TCP).
-    protocol: ConnectionProtocol,
-    #[structopt(subcommand, name = "mode")]
-    connection_option: ConnectOptions,
-}
-
-#[derive(Debug, StructOpt)]
-enum ConnectOptions {
+pub enum ConnectOptions {
     /// Select the fastest ProtonVPN server.
     Fastest,
     /// Determine the country for fastest connect.
