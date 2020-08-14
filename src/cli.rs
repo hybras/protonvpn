@@ -11,6 +11,20 @@ pub enum CliOptions {
     Configure,
     Refresh,
     Examples,
+    Init,
+}
+
+struct Connect {
+    protocol: ConnectionProtocol
+}
+
+enum ConnectOptions {
+    Fastest,
+    CountryCode(String),
+    SecureCore,
+    P2P,
+    Tor,
+    Random
 }
 
 #[derive(Debug)]
