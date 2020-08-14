@@ -4,33 +4,45 @@ use structopt::StructOpt;
 #[derive(StructOpt, Debug)]
 #[structopt(name = "basic")]
 pub enum CliOptions {
+    /// Initialize a ProtonVPN profile.
     Init,
-    Connect {
-        protocol: ConnectionProtocol,
-        connection_option: ConnectOptions,
-    },
+    /// Connect to a ProtonVPN server.
+    Connect(Connect),
+    /// Reconnect the currently active session or connect to the last connected server.
     Reconnect,
+    /// Disconnect the current session.
     Disconnect,
+    /// Print information about the current session.
     Status,
+    /// Show connection status.
     Configure,
+    /// Refresh OpenVPN configuration and server data.
     Refresh,
+    /// Print some example commands.
     Examples,
 }
 
 #[derive(Debug, StructOpt)]
 struct Connect {
     #[structopt(default_value)]
+    /// Determine the protocol (UDP or TCP).
     protocol: ConnectionProtocol,
     connection_option: ConnectOptions,
 }
 
 #[derive(Debug, StructOpt)]
 enum ConnectOptions {
+    /// Select the fastest ProtonVPN server.
     Fastest,
+    /// Determine the country for fastest connect.
     CountryCode(String),
+    /// Connect to the fastest Secure-Core server.
     SecureCore,
+    /// Connect to the fastest torrent server.
     P2P,
+    /// Connect to the fastest Tor server.
     Tor,
+    /// Select a random ProtonVPN server.
     Random,
     Server(String),
 }
