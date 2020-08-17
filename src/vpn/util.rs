@@ -1,5 +1,7 @@
 use crate::cli::ConnectionProtocol;
+use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
+use std::path::Path;
 use url::{ParseError, Url};
 
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
@@ -43,7 +45,9 @@ impl Default for UserConfig {
             check_update_interval: 3,
             killswitch: 0,
             split_tunnel: 0,
-            api_domain: Url::parse("https://api.protonvpn.ch").unwrap(),
+            api_domain: Url::parse("https://api.protonvpn.ch")
+                .context("Failed to parse protonvpn api url")
+                .unwrap(),
         }
     }
 }
