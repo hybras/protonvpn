@@ -57,6 +57,18 @@ struct MetaData {
     last_update_check: String,
 }
 
+fn read_config_from_file(p: &Path) -> Result<Config> {
+    use ron::de::from_bytes;
+    use std::fs::read;
+    let file_bytes = read(p).context("Couldn't read config file's bytes")?;
+    let config = from_bytes::<Config>(&file_bytes)?;
+    Ok(config)
+}
+
+fn config() -> Result<Config> {
+    use super::constants::CONFIG_FILE;
+    read_config_from_file(&**CONFIG_FILE)
+}
 #[cfg(test)]
 mod tests {
     use super::*;
