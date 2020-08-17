@@ -4,6 +4,8 @@ use serde::{Deserialize, Serialize};
 use std::path::Path;
 use url::Url;
 
+mod settings;
+
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
 struct Config {
     user: UserConfig,
