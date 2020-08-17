@@ -30,8 +30,9 @@ impl UserConfig {
     }
 }
 
+/// Do not use this directly. It sets the username to a BS value. Use with_user instead
 impl Default for UserConfig {
-    // Do not use this directly. It sets the username to a BS value. Use with_user instead
+    /// Do not use this directly. It sets the username to a BS value. Use with_user instead
     fn default() -> Self {
         Self {
             username: "username".to_owned(),
