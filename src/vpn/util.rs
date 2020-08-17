@@ -3,7 +3,7 @@ use url::{ParseError, Url};
 
 struct Config {
     user: UserConfig,
-    metadata: Option<MetaData>
+    metadata: Option<MetaData>,
 }
 
 struct UserConfig {
@@ -28,7 +28,6 @@ impl UserConfig {
 }
 
 impl Default for UserConfig {
-
     // Do not use this directly. It sets the username to a BS value. Use with_user instead
     fn default() -> Self {
         Self {
