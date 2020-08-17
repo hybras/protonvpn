@@ -1,7 +1,6 @@
-use crate::cli::ConnectionProtocol;
 use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
-use std::path::Path;
+use std::{path::Path, str::FromStr};
 use url::Url;
 
 mod settings;
@@ -53,6 +52,40 @@ impl Default for UserConfig {
         }
     }
 }
+
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
+pub enum ConnectionProtocol {
+    TCP,
+    UDP,
+}
+
+impl ToString for ConnectionProtocol {
+    fn to_string(&self) -> String {
+        match self {
+            Self::TCP => "tcp",
+            Self::UDP => "udp",
+        }
+        .into()
+    }
+}
+
+impl Default for ConnectionProtocol {
+    fn default() -> Self {
+        Self::UDP
+    }
+}
+
+impl FromStr for ConnectionProtocol {
+    type Err = String;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_ascii_lowercase().as_str() {
+            "udp" => Ok(Self::UDP),
+            "tcp" => Ok(Self::TCP),
+            _ => Err("String must be udp or tcp".into()),
+        }
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
 struct MetaData {
     connected_server: String,
