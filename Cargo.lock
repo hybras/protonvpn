@@ -229,6 +229,7 @@ dependencies = [
  "dirs",
  "lazy_static",
  "literally",
+ "serde",
  "structopt",
  "url",
 ]
@@ -269,6 +270,26 @@ dependencies = [
  "blake2b_simd",
  "constant_time_eq",
  "crossbeam-utils",
+]
+
+[[package]]
+name = "serde"
+version = "1.0.115"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e54c9a88f2da7238af84b5101443f0c0d0a3bbdc455e34a5c9497b1903ed55d5"
+dependencies = [
+ "serde_derive",
+]
+
+[[package]]
+name = "serde_derive"
+version = "1.0.115"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "609feed1d0a73cc36a0182a840a9b37b4a82f0b1150369f0536a9e3f2a31dc48"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
 ]
 
 [[package]]
@@ -372,6 +393,7 @@ dependencies = [
  "idna",
  "matches",
  "percent-encoding",
+ "serde",
 ]
 
 [[package]]
