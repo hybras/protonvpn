@@ -2,7 +2,7 @@ use crate::cli::ConnectionProtocol;
 use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
 use std::path::Path;
-use url::{ParseError, Url};
+use url::Url;
 
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
 struct Config {
