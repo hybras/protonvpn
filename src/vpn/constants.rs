@@ -7,7 +7,11 @@ use std::path::PathBuf;
 
 lazy_static! {
     static ref USER: String = env::var("USER").unwrap();
-    static ref CONFIG_DIR: PathBuf = home_dir().unwrap();
+    static ref CONFIG_DIR: PathBuf = {
+        let mut home = home_dir().unwrap();
+        home.push(".pvpn-cli");
+        home
+    };
     static ref CONFIG_FILE: PathBuf = {
         let mut dir = CONFIG_DIR.clone();
         dir.push("pvpn-cli.cfg");
