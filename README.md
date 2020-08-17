@@ -16,3 +16,14 @@ The official cli is pretty great. It can be loads better in rust.
 - [ ] Bind connect/disconnect functions to protonvpn's cli
 - [ ] `status` outputs server connection info
 - [ ] Way more but the above is enough for now
+
+## License
+
+Licensed under either of
+
+- Apache License, Version 2.0
+   ([LICENSE-APACHE](LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
+- MIT license
+   ([LICENSE-MIT](LICENSE-MIT) or http://opensource.org/licenses/MIT)
+
+at your option.
