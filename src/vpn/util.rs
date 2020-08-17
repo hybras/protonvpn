@@ -1,11 +1,14 @@
 use crate::cli::ConnectionProtocol;
+use serde::{Deserialize, Serialize};
 use url::{ParseError, Url};
 
+#[derive(Serialize, Deserialize, Debug, PartialEq)]
 struct Config {
     user: UserConfig,
     metadata: Option<MetaData>,
 }
 
+#[derive(Serialize, Deserialize, Debug, PartialEq)]
 struct UserConfig {
     username: String,
     tier: u8,
@@ -43,7 +46,7 @@ impl Default for UserConfig {
         }
     }
 }
-
+#[derive(Serialize, Deserialize, Debug, PartialEq)]
 struct MetaData {
     connected_server: String,
     connected_proto: ConnectionProtocol,
@@ -51,4 +54,60 @@ struct MetaData {
     connected_time: String,
     resolvconf_hash: String,
     last_update_check: String,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use ron::{from_str, ser::to_string_pretty};
+
+    const SERIALIZED_STR: &str = "(
+    user: (
+        username: \"username\",
+        tier: 0,
+        default_protocol: UDP,
+        dns_leak_protection: 0,
+        custom_dns: None,
+        check_update_interval: 3,
+        killswitch: 0,
+        split_tunnel: 0,
+        api_domain: \"https://api.protonvpn.ch/\",
+    ),
+    metadata: None,
+)";
+    #[test]
+    fn test_serialization() {
+        let conf = Config {
+            user: Default::default(),
+            metadata: None,
+        };
+        let conf_as_str = to_string_pretty(&conf, Default::default());
+        match conf_as_str {
+            Ok(as_str) => {
+                // Alas indentation is not stripped from multiline strings.
+
+                assert_eq!(
+                    SERIALIZED_STR, as_str,
+                    "Expected: {}\nActual:{}",
+                    SERIALIZED_STR, as_str
+                );
+            }
+            Err(_) => assert!(false, "Serialization failed"),
+        }
+    }
+    #[test]
+    fn test_deserialization() {
+        let de = from_str::<Config>(SERIALIZED_STR);
+
+        match de {
+            Ok(de_conf) => {
+                let conf = Config {
+                    user: Default::default(),
+                    metadata: None,
+                };
+                assert_eq!(conf, de_conf);
+            }
+            Err(_) => assert!(false, "Deser failed"),
+        }
+    }
 }

@@ -1,3 +1,4 @@
+use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 use structopt::StructOpt;
 
@@ -50,7 +51,7 @@ pub enum ConnectOptions {
     },
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub enum ConnectionProtocol {
     TCP,
     UDP,
