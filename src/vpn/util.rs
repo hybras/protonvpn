@@ -78,9 +78,9 @@ mod tests {
     use super::*;
     use ron::{from_str, ser::to_string_pretty};
 
-    const SERIALIZED_STR: &str = "(
+    const SERIALIZED_STR: &str = r#"(
     user: (
-        username: \"username\",
+        username: "username",
         tier: 0,
         default_protocol: UDP,
         dns_leak_protection: 0,
@@ -88,10 +88,10 @@ mod tests {
         check_update_interval: 3,
         killswitch: 0,
         split_tunnel: 0,
-        api_domain: \"https://api.protonvpn.ch/\",
+        api_domain: "https://api.protonvpn.ch/",
     ),
     metadata: None,
-)";
+)"#;
     #[test]
     fn test_serialization() {
         let conf = Config {
