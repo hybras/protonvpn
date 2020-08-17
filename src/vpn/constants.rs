@@ -6,38 +6,38 @@ use std::env;
 use std::path::PathBuf;
 
 lazy_static! {
-    static ref USER: String = env::var("USER").unwrap();
-    static ref CONFIG_DIR: PathBuf = {
+    pub(crate) static ref USER: String = env::var("USER").unwrap();
+    pub(crate) static ref CONFIG_DIR: PathBuf = {
         let mut home = home_dir().unwrap();
         home.push(".pvpn-cli");
         home
     };
-    static ref CONFIG_FILE: PathBuf = {
+    pub(crate) static ref CONFIG_FILE: PathBuf = {
         let mut dir = CONFIG_DIR.clone();
         dir.push("pvpn-cli.cfg");
         dir
     };
-    static ref SERVER_INFO_FILE: PathBuf = {
+    pub(crate) static ref SERVER_INFO_FILE: PathBuf = {
         let mut path = CONFIG_DIR.clone();
         path.push("serverinfo.json");
         path
     };
-    static ref SPLIT_TUNNEL_FILE: PathBuf = {
+    pub(crate) static ref SPLIT_TUNNEL_FILE: PathBuf = {
         let mut path = CONFIG_DIR.clone();
         path.push("split_tunnel.txt");
         path
     };
-    static ref OVPN_FILE: PathBuf = {
+    pub(crate) static ref OVPN_FILE: PathBuf = {
         let mut path = CONFIG_DIR.clone();
         path.push("connect.ovpn");
         path
     };
-    static ref PASSFILE: PathBuf = {
+    pub(crate) static ref PASSFILE: PathBuf = {
         let mut path = CONFIG_DIR.clone();
         path.push("pvpnpass");
         path
     };
-    static ref COUNTRY_CODES: HashMap<String, String> = hmap! {
+    pub(crate) static ref COUNTRY_CODES: HashMap<String, String> = hmap! {
         "BD" => "Bangladesh",
         "BE" => "Belgium",
         "BF" => "Burkina Faso",
