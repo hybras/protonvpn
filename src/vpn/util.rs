@@ -53,7 +53,7 @@ impl Default for UserConfig {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Copy, Clone)]
 pub enum ConnectionProtocol {
     TCP,
     UDP,
