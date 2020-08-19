@@ -1,6 +1,4 @@
 use crate::vpn::util::ConnectionProtocol;
-use serde::{Deserialize, Serialize};
-use std::str::FromStr;
 use structopt::StructOpt;
 
 #[derive(StructOpt, Debug)]
