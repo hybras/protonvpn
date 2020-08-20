@@ -38,7 +38,7 @@ impl SettingsMutator {
 
     /// Set the users ProtonVPN Plan.
     fn set_tier(&mut self) -> Result<u8> {
-        let protonvpn_plans = ["Free", "Basic", "Plus", "Visionary"];
+        let protonvpn_plans = ["Free", "Basic", "Plus & Visionary",];
         for (idx, &plan) in protonvpn_plans.iter().enumerate() {
             println!("{}) {}", idx, plan);
         }
