@@ -1,10 +1,10 @@
 use super::*;
 use anyhow::Result;
-use std::io::{stdin, BufRead, BufReader, stdout, BufWriter, Write};
+use std::io::{stdin, stdout, BufRead, BufReader, BufWriter, Write};
 
 /// Encapsulation for mutating ProtonVPN Settings.
 ///
-/// Each "setter" prints options, reads presumptive option from stdin, 
+/// Each "setter" prints options, reads presumptive option from stdin,
 /// and writes it to the internal config struct. It does not write the settings to disk.
 ///
 /// In the future, this struct should store stdin/stdout handles for buffering, and write settings upon Drop.
@@ -24,7 +24,7 @@ impl SettingsMutator {
     fn set_username(&mut self) -> Result<String> {
         print!("Enter your ProtonVPN OpenVPN username: ");
         let old_username = self.user_config.username.clone();
-         // Preamble for all set methods
+        // Preamble for all set methods
         // I don't understand lifetimes.
         let stdout = stdout();
         let mut out = BufWriter::new(stdout.lock());
@@ -38,7 +38,7 @@ impl SettingsMutator {
 
     /// Set the users ProtonVPN Plan.
     fn set_tier(&mut self) -> Result<u8> {
-        let protonvpn_plans = ["Free", "Basic", "Plus & Visionary",];
+        let protonvpn_plans = ["Free", "Basic", "Plus & Visionary"];
         for (idx, &plan) in protonvpn_plans.iter().enumerate() {
             println!("{}) {}", idx, plan);
         }
@@ -64,6 +64,36 @@ impl SettingsMutator {
             }
         };
         Ok(old_tier)
+    }
+
+    fn set_protocol(&mut self) -> Result<ConnectionProtocol> {
+        use ConnectionProtocol::*;
+        let protocols = [UDP, TCP];
+        for (idx, &protocol) in protocols.iter().enumerate() {
+            println!("{}) {}", idx, protocol.to_string());
+        }
+        print!("Enter your protocol: ");
+        // Preamble for all set methods
+        // I don't understand lifetimes.
+        let stdout = stdout();
+        let mut out = BufWriter::new(stdout.lock());
+        out.flush()?;
+        let stdin = stdin();
+        let mut sin = stdin.lock();
+        // End preamble
+        let old_protocol = self.user_config.default_protocol;
+        let mut protocol = String::new();
+        self.user_config.default_protocol = loop {
+            sin.read_line(&mut protocol)?;
+            let possible_tier: u8 = protocol.trim().parse()?;
+            if (0..protocols.len()).contains(&(possible_tier as usize)) {
+                break protocols[possible_tier as usize];
+            } else {
+                println!("Enter a valid tier");
+                continue;
+            }
+        };
+        Ok(old_protocol)
     }
 }
 
