@@ -12,8 +12,8 @@ pub enum CliOptions {
         #[structopt(subcommand, name = "mode")]
         connection_option: ConnectOptions,
         /// Determine the protocol (UDP or TCP).
-        #[structopt(default_value, long, short)]
-        protocol: ConnectionProtocol,
+        #[structopt(long, short)]
+        protocol: Option<ConnectionProtocol>,
     },
     /// Reconnect the currently active session or connect to the last connected server.
     Reconnect,
