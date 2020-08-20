@@ -1,6 +1,6 @@
 use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
-use std::{path::Path, str::FromStr};
+use std::{fmt::Display, path::Path, str::FromStr};
 use url::Url;
 
 mod settings;
@@ -52,7 +52,6 @@ impl Default for UserConfig {
         }
     }
 }
-
 #[derive(Debug, Serialize, Deserialize, PartialEq, Copy, Clone)]
 enum PlanTier {
     Free,
@@ -61,19 +60,32 @@ enum PlanTier {
     Visionary,
 }
 
+impl Display for PlanTier {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let string = match self {
+            PlanTier::Free => "Free",
+            PlanTier::Basic => "Basic",
+            PlanTier::Plus => "Plus",
+            PlanTier::Visionary => "Visionary",
+        };
+        write!(f, "{}", string)?;
+        Ok(())
+    }
+}
 #[derive(Debug, Serialize, Deserialize, PartialEq, Copy, Clone)]
 pub enum ConnectionProtocol {
     TCP,
     UDP,
 }
 
-impl ToString for ConnectionProtocol {
-    fn to_string(&self) -> String {
-        match self {
+impl Display for ConnectionProtocol {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let string = match self {
             Self::TCP => "tcp",
             Self::UDP => "udp",
-        }
-        .into()
+        };
+        write!(f, "{}", string)?;
+        Ok(())
     }
 }
 
