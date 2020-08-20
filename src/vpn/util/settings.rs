@@ -36,7 +36,7 @@ impl SettingsMutator {
         Ok(old_username)
     }
 
-    fn set_enum_field<T: ToString + Clone, N: AsRef<str>>(
+    fn set_enum_field<T: Display + Clone, N: AsRef<str>>(
         &mut self,
         name: N,
         getter: impl Fn(&UserConfig) -> T,
@@ -71,13 +71,19 @@ impl SettingsMutator {
         Ok(old_value)
     }
 
-    /// Set the users ProtonVPN Plan.
-    fn set_tier(&mut self) -> Result<u8> {
-        let protonvpn_plans = ["Free", "Basic", "Plus & Visionary"];
-        for (idx, &plan) in protonvpn_plans.iter().enumerate() {
-            println!("{}) {}", idx, plan);
-        }
-        print!("Enter your Tier: ");
+    fn set_value_field<T, N>(
+        &mut self,
+        name: N,
+        getter: impl Fn(&UserConfig) -> T,
+        setter: impl Fn(&mut UserConfig, T) -> (),
+    ) -> Result<T>
+    where
+        T: Display + Clone + FromStr,
+        N: AsRef<str>,
+        <T as FromStr>::Err: std::marker::Sync + std::error::Error + std::marker::Send+'static,
+    {
+        print!("Enter your {}: ", name.as_ref());
+        let old_value = getter(&self.user_config).clone();
         // Preamble for all set methods
         // I don't understand lifetimes.
         let stdout = stdout();
@@ -86,27 +92,31 @@ impl SettingsMutator {
         let stdin = stdin();
         let mut sin = stdin.lock();
         // End preamble
-        let old_tier = self.user_config.tier;
-        let mut tier = String::new();
-        self.user_config.tier = loop {
-            sin.read_line(&mut tier)?;
-            let possible_tier: u8 = tier.trim().parse()?;
-            if (0..protonvpn_plans.len()).contains(&(possible_tier as usize)) {
-                break possible_tier;
-            } else {
-                println!("Enter a valid tier");
-                continue;
-            }
-        };
-        Ok(old_tier)
+        let mut new_value = String::new();
+        sin.read_line(&mut new_value)?;
+        let new = new_value.trim().parse::<T>()?;
+        setter(&mut self.user_config, new);
+        Ok(old_value)
+    }
+
+    /// Set the users ProtonVPN Plan.
+    fn set_tier(&mut self) -> Result<PlanTier> {
+        use PlanTier::*;
+        self.set_enum_field(
+            "Plan Tier",
+            |t| t.tier,
+            |u, t| u.tier = t,
+            &[Free, Basic, Plus],
+        )
     }
 
     fn set_protocol(&mut self) -> Result<ConnectionProtocol> {
+        use ConnectionProtocol::*;
         self.set_enum_field(
             "Connection Protocol",
             |u| u.default_protocol,
             |u, t| u.default_protocol = t,
-            &[ConnectionProtocol::UDP, ConnectionProtocol::TCP],
+            &[UDP, TCP],
         )
     }
 }
@@ -135,7 +145,7 @@ mod tests {
         match old {
             Ok(old) => {
                 println!("{}", settings.user_config.tier);
-                assert_eq!(old, 0);
+                assert_eq!(old, PlanTier::Free);
             }
             Err(_) => assert!(false, "Setting Tier failed"),
         }
