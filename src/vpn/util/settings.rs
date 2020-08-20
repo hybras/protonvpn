@@ -10,24 +10,26 @@ use strum::IntoEnumIterator;
 ///
 /// In the future, this struct should store stdin/stdout handles for buffering, and write settings upon Drop.
 #[derive(Default)]
-struct SettingsMutator {
-    user_config: UserConfig,
-}
+struct Settings<S>(S);
 
-impl From<UserConfig> for SettingsMutator {
-    fn from(user_config: UserConfig) -> Self {
-        Self { user_config }
+impl<S> From<S> for Settings<S> {
+    fn from(settings: S) -> Self {
+        Self(settings)
     }
 }
 
-impl SettingsMutator {
-    fn set_enum_field<T: Display + Copy + IntoEnumIterator, N: AsRef<str>>(
+impl<S> Settings<S> {
+    fn set_enum_field<T, N>(
         &mut self,
         name: N,
-        getter: impl Fn(&UserConfig) -> T,
-        setter: impl Fn(&mut UserConfig, T) -> (),
-    ) -> Result<T> {
-        let options:Vec<T> = T::iter().collect();
+        getter: impl Fn(&S) -> T,
+        setter: impl Fn(&mut S, T) -> (),
+    ) -> Result<T>
+    where
+        T: Display + Copy + IntoEnumIterator,
+        N: AsRef<str>,
+    {
+        let options: Vec<T> = T::iter().collect();
         for (idx, option) in options.iter().enumerate() {
             println!("{}) {}", idx, option.to_string());
         }
@@ -40,7 +42,7 @@ impl SettingsMutator {
         let stdin = stdin();
         let mut sin = stdin.lock();
         // End preamble
-        let old_value = getter(&mut self.user_config);
+        let old_value = getter(&mut self.0);
         let mut new_value = String::new();
         let new_value = loop {
             sin.read_line(&mut new_value)?;
@@ -52,15 +54,15 @@ impl SettingsMutator {
                 continue;
             }
         };
-        setter(&mut self.user_config, options[new_value].clone());
+        setter(&mut self.0, options[new_value].clone());
         Ok(old_value)
     }
 
     fn set_value_field<T, N>(
         &mut self,
         name: N,
-        getter: impl Fn(&UserConfig) -> T,
-        setter: impl Fn(&mut UserConfig, T) -> (),
+        getter: impl Fn(&S) -> T,
+        setter: impl Fn(&mut S, T) -> (),
     ) -> Result<T>
     where
         T: Display + Clone + FromStr,
@@ -68,7 +70,7 @@ impl SettingsMutator {
         <T as FromStr>::Err: std::marker::Sync + std::error::Error + std::marker::Send + 'static,
     {
         print!("Enter your {}: ", name.as_ref());
-        let old_value = getter(&self.user_config).clone();
+        let old_value = getter(&self.0).clone();
         // Preamble for all set methods
         // I don't understand lifetimes.
         let stdout = stdout();
@@ -80,10 +82,15 @@ impl SettingsMutator {
         let mut new_value = String::new();
         sin.read_line(&mut new_value)?;
         let new = new_value.trim().parse::<T>()?;
-        setter(&mut self.user_config, new);
+        setter(&mut self.0, new);
         Ok(old_value)
     }
+}
 
+/// Adds named setters for UserConfig properties
+type UserSettings = Settings<UserConfig>;
+
+impl UserSettings {
     /// Set the ProtonVPN Username
     fn set_username(&mut self) -> Result<String> {
         self.set_value_field("username", |u| u.username.clone(), |u, t| u.username = t)
@@ -92,11 +99,7 @@ impl SettingsMutator {
     /// Set the users ProtonVPN Plan.
     fn set_tier(&mut self) -> Result<PlanTier> {
         use PlanTier::*;
-        self.set_enum_field(
-            "Plan Tier",
-            |t| t.tier,
-            |u, t| u.tier = t,
-        )
+        self.set_enum_field("Plan Tier", |t| t.tier, |u, t| u.tier = t)
     }
 
     fn set_protocol(&mut self) -> Result<ConnectionProtocol> {
@@ -115,11 +118,11 @@ mod tests {
 
     #[test]
     fn test_set_username() {
-        let mut settings = SettingsMutator::default();
+        let mut settings = UserSettings::default();
         let old = settings.set_username();
         match old {
             Ok(old) => {
-                println!("{}", settings.user_config.username);
+                println!("{}", settings.0.username);
                 assert_eq!(old, "username");
             }
             Err(_) => assert!(false, "Setting username failed"),
@@ -128,11 +131,11 @@ mod tests {
 
     #[test]
     fn test_set_tier() {
-        let mut settings = SettingsMutator::default();
+        let mut settings = UserSettings::default();
         let old = settings.set_tier();
         match old {
             Ok(old) => {
-                println!("{}", settings.user_config.tier);
+                println!("{}", settings.0.tier);
                 assert_eq!(old, PlanTier::Free);
             }
             Err(_) => assert!(false, "Setting Tier failed"),
@@ -140,7 +143,7 @@ mod tests {
     }
     #[test]
     fn test_generic_setter() {
-        let mut settings = SettingsMutator::default();
+        let mut settings = UserSettings::default();
         let old = settings.set_enum_field(
             "Connection Protocol",
             |u| u.default_protocol,
