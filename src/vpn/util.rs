@@ -14,7 +14,7 @@ struct Config {
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
 struct UserConfig {
     username: String,
-    tier: u8,
+    tier: PlanTier,
     default_protocol: ConnectionProtocol,
     dns_leak_protection: u8,
     custom_dns: Option<String>,
@@ -39,7 +39,7 @@ impl Default for UserConfig {
     fn default() -> Self {
         Self {
             username: "username".to_owned(),
-            tier: 0,
+            tier: PlanTier::Free,
             default_protocol: ConnectionProtocol::UDP,
             dns_leak_protection: 0,
             custom_dns: None,
@@ -51,6 +51,14 @@ impl Default for UserConfig {
                 .unwrap(),
         }
     }
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Copy, Clone)]
+enum PlanTier {
+    Free,
+    Basic,
+    Plus,
+    Visionary,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Copy, Clone)]
