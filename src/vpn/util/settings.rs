@@ -102,33 +102,12 @@ impl SettingsMutator {
     }
 
     fn set_protocol(&mut self) -> Result<ConnectionProtocol> {
-        use ConnectionProtocol::*;
-        let protocols = [UDP, TCP];
-        for (idx, &protocol) in protocols.iter().enumerate() {
-            println!("{}) {}", idx, protocol.to_string());
-        }
-        print!("Enter your protocol: ");
-        // Preamble for all set methods
-        // I don't understand lifetimes.
-        let stdout = stdout();
-        let mut out = BufWriter::new(stdout.lock());
-        out.flush()?;
-        let stdin = stdin();
-        let mut sin = stdin.lock();
-        // End preamble
-        let old_protocol = self.user_config.default_protocol;
-        let mut protocol = String::new();
-        self.user_config.default_protocol = loop {
-            sin.read_line(&mut protocol)?;
-            let possible_tier: u8 = protocol.trim().parse()?;
-            if (0..protocols.len()).contains(&(possible_tier as usize)) {
-                break protocols[possible_tier as usize];
-            } else {
-                println!("Enter a valid tier");
-                continue;
-            }
-        };
-        Ok(old_protocol)
+        self.set_enum_field(
+            "Connection Protocol",
+            |u| u.default_protocol,
+            |u, t| u.default_protocol = t,
+            &[ConnectionProtocol::UDP, ConnectionProtocol::TCP],
+        )
     }
 }
 
