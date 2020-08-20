@@ -2,6 +2,7 @@ use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
 use std::{fmt::Display, path::Path, str::FromStr};
 use url::Url;
+use strum_macros::EnumIter;
 
 mod settings;
 
@@ -52,7 +53,7 @@ impl Default for UserConfig {
         }
     }
 }
-#[derive(Debug, Serialize, Deserialize, PartialEq, Copy, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Copy, Clone, EnumIter)]
 enum PlanTier {
     Free,
     Basic,
@@ -72,7 +73,7 @@ impl Display for PlanTier {
         Ok(())
     }
 }
-#[derive(Debug, Serialize, Deserialize, PartialEq, Copy, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Copy, Clone, EnumIter)]
 pub enum ConnectionProtocol {
     TCP,
     UDP,

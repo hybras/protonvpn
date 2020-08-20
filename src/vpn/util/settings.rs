@@ -1,6 +1,7 @@
 use super::*;
 use anyhow::Result;
 use std::io::{stdin, stdout, BufRead, BufReader, BufWriter, Write};
+use strum::IntoEnumIterator;
 
 /// Encapsulation for mutating ProtonVPN Settings.
 ///
@@ -20,14 +21,13 @@ impl From<UserConfig> for SettingsMutator {
 }
 
 impl SettingsMutator {
-
-    fn set_enum_field<T: Display + Clone, N: AsRef<str>>(
+    fn set_enum_field<T: Display + Copy + IntoEnumIterator, N: AsRef<str>>(
         &mut self,
         name: N,
         getter: impl Fn(&UserConfig) -> T,
         setter: impl Fn(&mut UserConfig, T) -> (),
-        options: &[T],
     ) -> Result<T> {
+        let options:Vec<T> = T::iter().collect();
         for (idx, option) in options.iter().enumerate() {
             println!("{}) {}", idx, option.to_string());
         }
@@ -96,7 +96,6 @@ impl SettingsMutator {
             "Plan Tier",
             |t| t.tier,
             |u, t| u.tier = t,
-            &[Free, Basic, Plus],
         )
     }
 
@@ -106,7 +105,6 @@ impl SettingsMutator {
             "Connection Protocol",
             |u| u.default_protocol,
             |u, t| u.default_protocol = t,
-            &[UDP, TCP],
         )
     }
 }
@@ -147,7 +145,6 @@ mod tests {
             "Connection Protocol",
             |u| u.default_protocol,
             |u, t| u.default_protocol = t,
-            &[ConnectionProtocol::UDP, ConnectionProtocol::TCP],
         );
     }
 }
