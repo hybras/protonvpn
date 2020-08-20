@@ -20,21 +20,6 @@ impl From<UserConfig> for SettingsMutator {
 }
 
 impl SettingsMutator {
-    /// Set the ProtonVPN Username
-    fn set_username(&mut self) -> Result<String> {
-        print!("Enter your ProtonVPN OpenVPN username: ");
-        let old_username = self.user_config.username.clone();
-        // Preamble for all set methods
-        // I don't understand lifetimes.
-        let stdout = stdout();
-        let mut out = BufWriter::new(stdout.lock());
-        out.flush()?;
-        let stdin = stdin();
-        let mut sin = stdin.lock();
-        // End preamble
-        sin.read_line(&mut self.user_config.username)?;
-        Ok(old_username)
-    }
 
     fn set_enum_field<T: Display + Clone, N: AsRef<str>>(
         &mut self,
@@ -80,7 +65,7 @@ impl SettingsMutator {
     where
         T: Display + Clone + FromStr,
         N: AsRef<str>,
-        <T as FromStr>::Err: std::marker::Sync + std::error::Error + std::marker::Send+'static,
+        <T as FromStr>::Err: std::marker::Sync + std::error::Error + std::marker::Send + 'static,
     {
         print!("Enter your {}: ", name.as_ref());
         let old_value = getter(&self.user_config).clone();
@@ -97,6 +82,11 @@ impl SettingsMutator {
         let new = new_value.trim().parse::<T>()?;
         setter(&mut self.user_config, new);
         Ok(old_value)
+    }
+
+    /// Set the ProtonVPN Username
+    fn set_username(&mut self) -> Result<String> {
+        self.set_value_field("username", |u| u.username.clone(), |u, t| u.username = t)
     }
 
     /// Set the users ProtonVPN Plan.
