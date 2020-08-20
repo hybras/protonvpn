@@ -1,4 +1,5 @@
 use crate::vpn::util::ConnectionProtocol;
+use anyhow::Result;
 use structopt::StructOpt;
 
 #[derive(StructOpt, Debug)]
@@ -48,4 +49,43 @@ pub enum ConnectOptions {
     Server {
         server: String,
     },
+}
+
+mod cli_hooks;
+
+impl CliOptions {
+    pub fn do_shit(self) -> Result<()> {
+        use cli_hooks::configure;
+        use CliOptions::*;
+        let config = crate::vpn::util::config();
+        match config {
+            Ok(mut config) => {
+                match self {
+                    Init => println!("You already have initialized"),
+                    Connect {
+                        connection_option: _,
+                        protocol: _,
+                    } => {}
+                    Reconnect => {}
+                    Disconnect => {}
+                    Status => {}
+                    Configure => {
+                        configure(&mut config)?;
+                    }
+                    Refresh => {}
+                    Examples => {}
+                };
+                Ok(())
+            }
+            Err(_) => {
+                match self {
+                    Init => {}
+                    _ => {
+                        println!("Unable to load your profile. Try running `protonvpn init` again.")
+                    }
+                };
+                Ok(())
+            }
+        }
+    }
 }
