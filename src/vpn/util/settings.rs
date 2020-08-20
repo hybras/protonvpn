@@ -36,6 +36,41 @@ impl SettingsMutator {
         Ok(old_username)
     }
 
+    fn set_enum_field<T: ToString + Clone, N: AsRef<str>>(
+        &mut self,
+        name: N,
+        getter: impl Fn(&UserConfig) -> T,
+        setter: impl Fn(&mut UserConfig, T) -> (),
+        options: &[T],
+    ) -> Result<T> {
+        for (idx, option) in options.iter().enumerate() {
+            println!("{}) {}", idx, option.to_string());
+        }
+        print!("Enter {}: ", name.as_ref());
+        // Preamble for all set methods
+        // I don't understand lifetimes.
+        let stdout = stdout();
+        let mut out = BufWriter::new(stdout.lock());
+        out.flush()?;
+        let stdin = stdin();
+        let mut sin = stdin.lock();
+        // End preamble
+        let old_value = getter(&mut self.user_config);
+        let mut new_value = String::new();
+        let new_value = loop {
+            sin.read_line(&mut new_value)?;
+            let possible_value: usize = new_value.trim().parse()?;
+            if (0..options.len()).contains(&(possible_value as usize)) {
+                break possible_value;
+            } else {
+                println!("Enter a valid number");
+                continue;
+            }
+        };
+        setter(&mut self.user_config, options[new_value].clone());
+        Ok(old_value)
+    }
+
     /// Set the users ProtonVPN Plan.
     fn set_tier(&mut self) -> Result<u8> {
         let protonvpn_plans = ["Free", "Basic", "Plus & Visionary"];
@@ -125,5 +160,15 @@ mod tests {
             }
             Err(_) => assert!(false, "Setting Tier failed"),
         }
+    }
+    #[test]
+    fn test_generic_setter() {
+        let mut settings = SettingsMutator::default();
+        let old = settings.set_enum_field(
+            "Connection Protocol",
+            |u| u.default_protocol,
+            |u, t| u.default_protocol = t,
+            &[ConnectionProtocol::UDP, ConnectionProtocol::TCP],
+        );
     }
 }
