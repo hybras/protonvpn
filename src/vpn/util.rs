@@ -1,28 +1,28 @@
 use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
 use std::{fmt::Display, path::Path, str::FromStr};
-use url::Url;
 use strum_macros::EnumIter;
+use url::Url;
 
-mod settings;
+pub(crate) mod settings;
 
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
-struct Config {
-    user: UserConfig,
-    metadata: Option<MetaData>,
+pub(crate) struct Config {
+    pub(crate) user: UserConfig,
+    pub(crate) metadata: Option<MetaData>,
 }
 
-#[derive(Serialize, Deserialize, Debug, PartialEq)]
-struct UserConfig {
-    username: String,
-    tier: PlanTier,
-    default_protocol: ConnectionProtocol,
-    dns_leak_protection: u8,
-    custom_dns: Option<String>,
-    check_update_interval: u8,
-    killswitch: u8,
-    split_tunnel: u8,
-    api_domain: Url,
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
+pub(crate) struct UserConfig {
+    pub(crate) username: String,
+    pub(crate) tier: PlanTier,
+    pub(crate) default_protocol: ConnectionProtocol,
+    pub(crate) dns_leak_protection: u8,
+    pub(crate) custom_dns: Option<String>,
+    pub(crate) check_update_interval: u8,
+    pub(crate) killswitch: u8,
+    pub(crate) split_tunnel: u8,
+    pub(crate) api_domain: Url,
 }
 
 impl UserConfig {
@@ -54,7 +54,7 @@ impl Default for UserConfig {
     }
 }
 #[derive(Debug, Serialize, Deserialize, PartialEq, Copy, Clone, EnumIter)]
-enum PlanTier {
+pub(crate) enum PlanTier {
     Free,
     Basic,
     Plus,
@@ -108,16 +108,16 @@ impl FromStr for ConnectionProtocol {
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
-struct MetaData {
-    connected_server: String,
-    connected_proto: ConnectionProtocol,
-    dns_server: String,
-    connected_time: String,
-    resolvconf_hash: String,
-    last_update_check: String,
+pub(crate) struct MetaData {
+    pub(crate) connected_server: String,
+    pub(crate) connected_proto: ConnectionProtocol,
+    pub(crate) dns_server: String,
+    pub(crate) connected_time: String,
+    pub(crate) resolvconf_hash: String,
+    pub(crate) last_update_check: String,
 }
 
-fn read_config_from_file(p: &Path) -> Result<Config> {
+pub(crate) fn read_config_from_file(p: &Path) -> Result<Config> {
     use ron::de::from_bytes;
     use std::fs::read;
     let file_bytes = read(p).context("Couldn't read config file's bytes")?;
@@ -125,7 +125,7 @@ fn read_config_from_file(p: &Path) -> Result<Config> {
     Ok(config)
 }
 
-fn config() -> Result<Config> {
+pub(crate) fn config() -> Result<Config> {
     use super::constants::CONFIG_FILE;
     read_config_from_file(&**CONFIG_FILE)
 }

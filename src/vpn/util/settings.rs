@@ -10,7 +10,7 @@ use strum::IntoEnumIterator;
 ///
 /// In the future, this struct should store stdin/stdout handles for buffering, and write settings upon Drop.
 #[derive(Default)]
-struct Settings<S>(S);
+pub(crate) struct Settings<S>(S);
 
 impl<S> From<S> for Settings<S> {
     fn from(settings: S) -> Self {
@@ -88,22 +88,20 @@ impl<S> Settings<S> {
 }
 
 /// Adds named setters for UserConfig properties
-type UserSettings = Settings<UserConfig>;
+pub(crate) type UserSettings = Settings<UserConfig>;
 
 impl UserSettings {
     /// Set the ProtonVPN Username
-    fn set_username(&mut self) -> Result<String> {
+    pub(crate) fn set_username(&mut self) -> Result<String> {
         self.set_value_field("username", |u| u.username.clone(), |u, t| u.username = t)
     }
 
     /// Set the users ProtonVPN Plan.
-    fn set_tier(&mut self) -> Result<PlanTier> {
-        use PlanTier::*;
+    pub(crate) fn set_tier(&mut self) -> Result<PlanTier> {
         self.set_enum_field("Plan Tier", |t| t.tier, |u, t| u.tier = t)
     }
 
-    fn set_protocol(&mut self) -> Result<ConnectionProtocol> {
-        use ConnectionProtocol::*;
+    pub(crate) fn set_protocol(&mut self) -> Result<ConnectionProtocol> {
         self.set_enum_field(
             "Connection Protocol",
             |u| u.default_protocol,
