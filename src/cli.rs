@@ -70,7 +70,7 @@ impl CliOptions {
                     Disconnect => {}
                     Status => {}
                     Configure => {
-                        configure(&mut config)?;
+                        configure(&mut config.user)?;
                     }
                     Refresh => {}
                     Examples => {}
