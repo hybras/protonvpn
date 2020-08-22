@@ -73,10 +73,12 @@ impl Display for PlanTier {
         Ok(())
     }
 }
+
+/// Order here is used to indicate default option: UDP
 #[derive(Debug, Serialize, Deserialize, PartialEq, Copy, Clone, EnumIter)]
 pub enum ConnectionProtocol {
-    TCP,
     UDP,
+    TCP,
 }
 
 impl Display for ConnectionProtocol {
