@@ -1,8 +1,8 @@
-use crate::vpn::util::{settings::*, Config};
+use crate::vpn::util::{settings::*, UserConfig};
 use anyhow::{Context, Result};
 
-pub(crate) fn configure(config: &mut Config) -> Result<()> {
-    let mut user_settings = UserSettings::from(config.user.clone());
+pub(crate) fn configure(mut config: &mut UserConfig) -> Result<()> {
+    let mut user_settings = UserSettings::from(config.clone());
     let options = ["Username", "Tier", "Protocol"];
     println!("Options: ");
     for (idx, &opt) in options.iter().enumerate() {
@@ -28,5 +28,19 @@ pub(crate) fn configure(config: &mut Config) -> Result<()> {
         }
         _ => println!("Enter an in range value"),
     }
+    *config = user_settings.inner();
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_configure() {
+        let mut config = UserConfig::default();
+        let res = configure(&mut config);
+       assert!(res.is_ok()); 
+       println!("{:?}", config);
+    }
 }
