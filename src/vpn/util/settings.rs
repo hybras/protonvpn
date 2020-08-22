@@ -85,6 +85,10 @@ impl<S> Settings<S> {
         setter(&mut self.0, new);
         Ok(old_value)
     }
+
+    pub (crate) fn inner(self) -> S {
+        self.0
+    }
 }
 
 /// Adds named setters for UserConfig properties
