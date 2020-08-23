@@ -59,9 +59,9 @@ impl CliOptions {
     pub fn do_shit(self) -> Result<()> {
         use crate::vpn::constants::APP_NAME;
         use cli_hooks::configure;
-        use confy::{load, store};
-        use CliOptions::*;
+        use confy::load;
         use std::io::Write;
+        use CliOptions::*;
 
         let mut stdin = BufReader::new(stdin());
         let out = stdout();
@@ -80,7 +80,6 @@ impl CliOptions {
                     Status => {}
                     Configure => {
                         configure(&mut config.user, &mut stdin, &mut stdout)?;
-                        store(APP_NAME, config)?;
                     }
                     Refresh => {}
                     Examples => {}
@@ -90,9 +89,10 @@ impl CliOptions {
             Err(_) => {
                 match self {
                     Init => {}
-                    _ => {
-                        writeln!(&mut stdout, "Unable to load your profile. Try running `protonvpn init` again.")?
-                    }
+                    _ => writeln!(
+                        &mut stdout,
+                        "Unable to load your profile. Try running `protonvpn init` again."
+                    )?,
                 };
                 Ok(())
             }

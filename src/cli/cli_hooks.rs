@@ -1,5 +1,9 @@
-use crate::vpn::util::{settings::*, UserConfig};
+use crate::vpn::{
+    constants::APP_NAME,
+    util::{settings::*, UserConfig},
+};
 use anyhow::{Context, Result};
+use confy::store;
 use std::io::{BufRead, Write};
 
 pub(crate) fn configure<R, W>(config: &mut UserConfig, r: &mut R, w: &mut W) -> Result<()>
@@ -20,11 +24,7 @@ where
         .trim()
         .parse::<u8>()
         .context("You entered a garbage value")?;
-    let mut user_settings = Settings::new(
-        config.clone(), 
-        w, 
-        r
-    );
+    let mut user_settings = Settings::new(config.clone(), w, r);
     match opt {
         0 => {
             user_settings.set_username()?;
@@ -35,9 +35,10 @@ where
         2 => {
             user_settings.set_protocol()?;
         }
-        _ => {},
+        _ => {}
     }
     *config = user_settings.inner();
+    store(APP_NAME, config).context("Couldn't save settings")?;
     Ok(())
 }
 
@@ -48,6 +49,7 @@ mod tests {
 
     #[test]
     fn test_configure() {
+        let _input = b"2\n";
         let mut stdin = BufReader::new(stdin());
         let out = stdout();
         let mut stdout = out.lock();
