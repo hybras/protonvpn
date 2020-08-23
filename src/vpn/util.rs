@@ -25,15 +25,6 @@ pub(crate) struct UserConfig {
     pub(crate) api_domain: Url,
 }
 
-impl UserConfig {
-    pub fn with_user(username: String) -> UserConfig {
-        Self {
-            username: Some(username),
-            ..Default::default()
-        }
-    }
-}
-
 /// Do not use this directly. It sets the username to a BS value. Use with_user instead
 impl Default for UserConfig {
     /// Do not use this directly. It sets the username to a BS value. Use with_user instead
