@@ -15,11 +15,6 @@ lazy_static! {
         home.push(".pvpn-cli");
         home
     };
-    pub(crate) static ref CONFIG_FILE: PathBuf = {
-        let mut dir = CONFIG_DIR.clone();
-        dir.push("pvpn-cli.cfg");
-        dir
-    };
     pub(crate) static ref SERVER_INFO_FILE: PathBuf = {
         let mut path = CONFIG_DIR.clone();
         path.push("serverinfo.json");
