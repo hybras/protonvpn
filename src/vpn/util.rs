@@ -4,7 +4,7 @@ use std::{fmt::Display, str::FromStr};
 use strum_macros::EnumIter;
 use url::Url;
 
-pub(crate) mod settings;
+pub mod settings;
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Default)]
 pub(crate) struct Config {
@@ -39,7 +39,7 @@ impl Default for UserConfig {
     /// Do not use this directly. It sets the username to a BS value. Use with_user instead
     fn default() -> Self {
         Self {
-            username: Some("username".to_owned()),
+            username: None,
             tier: PlanTier::Free,
             default_protocol: ConnectionProtocol::UDP,
             dns_leak_protection: 0,
@@ -118,6 +118,3 @@ pub(crate) struct MetaData {
     pub(crate) resolvconf_hash: String,
     pub(crate) last_update_check: String,
 }
-
-#[cfg(test)]
-mod tests {}
