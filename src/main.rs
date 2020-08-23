@@ -1,9 +1,10 @@
 use crate::cli::CliOptions;
+use anyhow::Result;
 use structopt::StructOpt;
-
-fn main() {
+fn main() -> Result<()> {
     let opt = CliOptions::from_args();
-    println!("{:?}", opt);
+    opt.do_shit()?;
+    Ok(())
 }
 
 mod cli;

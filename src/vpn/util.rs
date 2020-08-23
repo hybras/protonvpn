@@ -6,7 +6,7 @@ use url::Url;
 
 pub(crate) mod settings;
 
-#[derive(Serialize, Deserialize, Debug, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Default)]
 pub(crate) struct Config {
     pub(crate) user: UserConfig,
     pub(crate) metadata: Option<MetaData>,

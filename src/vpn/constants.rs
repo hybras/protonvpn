@@ -288,3 +288,5 @@ lazy_static! {
         "MZ" => "Mozambique"
     };
 }
+
+pub(crate) const APP_NAME: &'static str = "protonvpn";

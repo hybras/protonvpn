@@ -9,16 +9,20 @@ use strum::IntoEnumIterator;
 /// and writes it to the internal config struct. It does not write the settings to disk.
 ///
 /// In the future, this struct should store stdin/stdout handles for buffering, and write settings upon Drop.
-#[derive(Default)]
-pub(crate) struct Settings<S>(S);
-
-impl<S> From<S> for Settings<S> {
-    fn from(settings: S) -> Self {
-        Self(settings)
-    }
+pub(crate) struct Settings<'a, S, R: BufRead, W: Write> {
+    settings: S,
+    stdout: &'a mut W,
+    stdin: &'a mut R,
 }
 
-impl<S> Settings<S> {
+impl<'a, S, R: BufRead, W: Write> Settings<'a, S, R, W> {
+    pub fn new(settings: S, stdout: &'a mut W, stdin: &'a mut R) -> Self {
+        Self {
+            settings,
+            stdout,
+            stdin,
+        }
+    }
     fn set_enum_field<T, N>(
         &mut self,
         name: N,
@@ -31,30 +35,22 @@ impl<S> Settings<S> {
     {
         let options: Vec<T> = T::iter().collect();
         for (idx, option) in options.iter().enumerate() {
-            println!("{}) {}", idx, option.to_string());
+            writeln!(&mut self.stdout, "{}) {}", idx, option.to_string())?;
         }
         print!("Enter {}: ", name.as_ref());
-        // Preamble for all set methods
-        // I don't understand lifetimes.
-        let stdout = stdout();
-        let mut out = BufWriter::new(stdout.lock());
-        out.flush()?;
-        let stdin = stdin();
-        let mut sin = stdin.lock();
-        // End preamble
-        let old_value = getter(&mut self.0);
+        let old_value = getter(&mut self.settings);
         let mut new_value = String::new();
         let new_value = loop {
-            sin.read_line(&mut new_value)?;
+            self.stdin.read_line(&mut new_value)?;
             let possible_value: usize = new_value.trim().parse()?;
             if (0..options.len()).contains(&(possible_value as usize)) {
                 break possible_value;
             } else {
-                println!("Enter a valid number");
+                writeln!(&mut self.stdout, "Enter a valid number")?;
                 continue;
             }
         };
-        setter(&mut self.0, options[new_value].clone());
+        setter(&mut self.settings, options[new_value].clone());
         Ok(old_value)
     }
 
@@ -70,7 +66,7 @@ impl<S> Settings<S> {
         <T as FromStr>::Err: std::marker::Sync + std::error::Error + std::marker::Send + 'static,
     {
         print!("Enter your {}: ", name.as_ref());
-        let old_value = getter(&self.0).clone();
+        let old_value = getter(&self.settings).clone();
         // Preamble for all set methods
         // I don't understand lifetimes.
         let stdout = stdout();
@@ -82,20 +78,24 @@ impl<S> Settings<S> {
         let mut new_value = String::new();
         sin.read_line(&mut new_value)?;
         let new = new_value.trim().parse::<T>()?;
-        setter(&mut self.0, new);
+        setter(&mut self.settings, new);
         Ok(old_value)
     }
 
-    pub (crate) fn inner(self) -> S {
-        self.0
+    pub(crate) fn inner(self) -> S {
+        self.settings
     }
 }
 
 /// Adds named setters for UserConfig properties
-impl Settings<UserConfig> {
+impl<'a, R: BufRead, W: Write> Settings<'a, UserConfig, R, W> {
     /// Set the ProtonVPN Username
     pub(crate) fn set_username(&mut self) -> Result<String> {
-        self.set_value_field("username", |u| u.username.clone(), |u, t| u.username = t)
+        self.set_value_field(
+            "username",
+            |u| u.username.clone().unwrap(),
+            |u, t| u.username = Some(t),
+        )
     }
 
     /// Set the users ProtonVPN Plan.
@@ -118,11 +118,12 @@ mod tests {
 
     #[test]
     fn test_set_username() {
-        let mut settings = Settings::<UserConfig>::default();
+        let mut input = "hello\n".as_bytes();
+        let mut output = vec![];
+        let mut settings = Settings::new(UserConfig::default(), &mut output, &mut input);
         let old = settings.set_username();
         match old {
             Ok(old) => {
-                println!("{}", settings.0.username);
                 assert_eq!(old, "username");
             }
             Err(_) => assert!(false, "Setting username failed"),
@@ -131,23 +132,16 @@ mod tests {
 
     #[test]
     fn test_set_tier() {
-        let mut settings = Settings::<UserConfig>::default();
+        let mut input = "2\n".as_bytes();
+        let mut output = vec![];
+        let mut settings = Settings::new(UserConfig::default(), &mut output, &mut input);
         let old = settings.set_tier();
+        let user_config = settings.inner();
         match old {
             Ok(old) => {
-                println!("{}", settings.0.tier);
                 assert_eq!(old, PlanTier::Free);
             }
             Err(_) => assert!(false, "Setting Tier failed"),
         }
-    }
-    #[test]
-    fn test_generic_setter() {
-        let mut settings = Settings::<UserConfig>::default();
-        let old = settings.set_enum_field(
-            "Connection Protocol",
-            |u| u.default_protocol,
-            |u, t| u.default_protocol = t,
-        );
     }
 }

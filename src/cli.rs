@@ -1,5 +1,6 @@
-use crate::vpn::util::ConnectionProtocol;
+use crate::vpn::util::{Config, ConnectionProtocol};
 use anyhow::Result;
+use std::io::{stdin, stdout, BufReader};
 use structopt::StructOpt;
 
 #[derive(StructOpt, Debug)]
@@ -54,14 +55,22 @@ pub enum ConnectOptions {
 mod cli_hooks;
 
 impl CliOptions {
+    /// TODO:This needs to be moved to main
     pub fn do_shit(self) -> Result<()> {
+        use crate::vpn::constants::APP_NAME;
         use cli_hooks::configure;
+        use confy::{load, store};
         use CliOptions::*;
-        let config = crate::vpn::util::config();
+        use std::io::Write;
+
+        let mut stdin = BufReader::new(stdin());
+        let out = stdout();
+        let mut stdout = out.lock();
+        let config = load::<Config>(APP_NAME);
         match config {
             Ok(mut config) => {
                 match self {
-                    Init => println!("You already have initialized"),
+                    Init => writeln!(&mut stdout, "You already have initialized")?,
                     Connect {
                         connection_option: _,
                         protocol: _,
@@ -70,7 +79,8 @@ impl CliOptions {
                     Disconnect => {}
                     Status => {}
                     Configure => {
-                        configure(&mut config.user)?;
+                        configure(&mut config.user, &mut stdin, &mut stdout)?;
+                        store(APP_NAME, config)?;
                     }
                     Refresh => {}
                     Examples => {}
@@ -81,7 +91,7 @@ impl CliOptions {
                 match self {
                     Init => {}
                     _ => {
-                        println!("Unable to load your profile. Try running `protonvpn init` again.")
+                        writeln!(&mut stdout, "Unable to load your profile. Try running `protonvpn init` again.")?
                     }
                 };
                 Ok(())

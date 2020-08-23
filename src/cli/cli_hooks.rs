@@ -1,14 +1,18 @@
 use crate::vpn::util::{settings::*, UserConfig};
 use anyhow::{Context, Result};
+use std::io::{BufRead, Write};
 
-pub(crate) fn configure(config: &mut UserConfig) -> Result<()> {
-    let mut user_settings = Settings::<UserConfig>::from(config.clone());
+pub(crate) fn configure<R, W>(config: &mut UserConfig, r: &mut R, w: &mut W) -> Result<()>
+where
+    R: BufRead,
+    W: Write,
+{
     let options = ["Username", "Tier", "Protocol"];
-    println!("Options: ");
+    writeln!(w, "Options: ")?;
     for (idx, &opt) in options.iter().enumerate() {
-        println!("{}) {}", idx, opt);
+        writeln!(w, "{}) {}", idx, opt)?;
     }
-    println!("Enter Option: ");
+    writeln!(w, "Enter Option: ")?;
     let stdin = std::io::stdin();
     let mut opt = String::new();
     stdin.read_line(&mut opt)?;
@@ -16,6 +20,11 @@ pub(crate) fn configure(config: &mut UserConfig) -> Result<()> {
         .trim()
         .parse::<u8>()
         .context("You entered a garbage value")?;
+    let mut user_settings = Settings::new(
+        config.clone(), 
+        w, 
+        r
+    );
     match opt {
         0 => {
             user_settings.set_username()?;
@@ -26,7 +35,7 @@ pub(crate) fn configure(config: &mut UserConfig) -> Result<()> {
         2 => {
             user_settings.set_protocol()?;
         }
-        _ => println!("Enter an in range value"),
+        _ => {},
     }
     *config = user_settings.inner();
     Ok(())
@@ -35,12 +44,16 @@ pub(crate) fn configure(config: &mut UserConfig) -> Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::io::{stdin, stdout, BufReader};
 
     #[test]
     fn test_configure() {
+        let mut stdin = BufReader::new(stdin());
+        let out = stdout();
+        let mut stdout = out.lock();
         let mut config = UserConfig::default();
-        let res = configure(&mut config);
+        let res = configure(&mut config, &mut stdin, &mut stdout);
         assert!(res.is_ok());
-        println!("{:#?}", config);
+        writeln!(stdout, "{:#?}", config).expect("Couldn't write to out");
     }
 }
