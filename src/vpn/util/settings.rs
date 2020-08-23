@@ -37,7 +37,7 @@ impl<'a, S, R: BufRead, W: Write> Settings<'a, S, R, W> {
         for (idx, option) in options.iter().enumerate() {
             writeln!(&mut self.stdout, "{}) {}", idx, option.to_string())?;
         }
-        print!("Enter {}: ", name.as_ref());
+        write!(self.stdout, "Enter {}: ", name.as_ref())?;
         let old_value = getter(&mut self.settings);
         let mut new_value = String::new();
         let new_value = loop {
@@ -61,22 +61,14 @@ impl<'a, S, R: BufRead, W: Write> Settings<'a, S, R, W> {
         setter: impl Fn(&mut S, T) -> (),
     ) -> Result<T>
     where
-        T: Display + Clone + FromStr,
+        T: Display + FromStr,
         N: AsRef<str>,
         <T as FromStr>::Err: std::marker::Sync + std::error::Error + std::marker::Send + 'static,
     {
-        print!("Enter your {}: ", name.as_ref());
-        let old_value = getter(&self.settings).clone();
-        // Preamble for all set methods
-        // I don't understand lifetimes.
-        let stdout = stdout();
-        let mut out = BufWriter::new(stdout.lock());
-        out.flush()?;
-        let stdin = stdin();
-        let mut sin = stdin.lock();
-        // End preamble
+        write!(self.stdout, "Enter your {}: ", name.as_ref())?;
+        let old_value = getter(&self.settings);
         let mut new_value = String::new();
-        sin.read_line(&mut new_value)?;
+        self.stdin.read_line(&mut new_value)?;
         let new = new_value.trim().parse::<T>()?;
         setter(&mut self.settings, new);
         Ok(old_value)
@@ -93,7 +85,7 @@ impl<'a, R: BufRead, W: Write> Settings<'a, UserConfig, R, W> {
     pub(crate) fn set_username(&mut self) -> Result<String> {
         self.set_value_field(
             "username",
-            |u| u.username.clone().unwrap(),
+            |u| u.username.clone().unwrap_or("".into()),
             |u, t| u.username = Some(t),
         )
     }
@@ -122,9 +114,11 @@ mod tests {
         let mut output = vec![];
         let mut settings = Settings::new(UserConfig::default(), &mut output, &mut input);
         let old = settings.set_username();
+        let user_config = settings.inner();
         match old {
             Ok(old) => {
-                assert_eq!(old, "username");
+                assert_eq!(user_config.username, Some("hello".into()));
+                assert_eq!(old, "");
             }
             Err(_) => assert!(false, "Setting username failed"),
         }
@@ -139,6 +133,7 @@ mod tests {
         let user_config = settings.inner();
         match old {
             Ok(old) => {
+                assert_eq!(user_config.tier, PlanTier::Plus);
                 assert_eq!(old, PlanTier::Free);
             }
             Err(_) => assert!(false, "Setting Tier failed"),
