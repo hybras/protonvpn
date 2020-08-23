@@ -16,7 +16,7 @@ pub(crate) struct Config {
 pub(crate) struct UserConfig {
     pub(crate) username: Option<String>,
     pub(crate) tier: PlanTier,
-    pub(crate) default_protocol: ConnectionProtocol,
+    pub(crate) protocol: ConnectionProtocol,
     pub(crate) dns_leak_protection: u8,
     pub(crate) custom_dns: Option<String>,
     pub(crate) check_update_interval: u8,
@@ -32,7 +32,7 @@ impl Default for UserConfig {
         Self {
             username: None,
             tier: PlanTier::Free,
-            default_protocol: ConnectionProtocol::UDP,
+            protocol: ConnectionProtocol::UDP,
             dns_leak_protection: 0,
             custom_dns: None,
             check_update_interval: 3,
@@ -102,8 +102,8 @@ impl FromStr for ConnectionProtocol {
 
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub(crate) struct MetaData {
-    pub(crate) connected_server: String,
-    pub(crate) connected_proto: ConnectionProtocol,
+    pub(crate) server: String,
+    pub(crate) protocol: ConnectionProtocol,
     pub(crate) dns_server: String,
     pub(crate) connected_time: String,
     pub(crate) resolvconf_hash: String,

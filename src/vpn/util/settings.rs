@@ -98,8 +98,8 @@ impl<'a, R: BufRead, W: Write> Settings<'a, UserConfig, R, W> {
     pub(crate) fn set_protocol(&mut self) -> Result<ConnectionProtocol> {
         self.set_enum_field(
             "Connection Protocol",
-            |u| u.default_protocol,
-            |u, t| u.default_protocol = t,
+            |u| u.protocol,
+            |u, t| u.protocol = t,
         )
     }
 }
