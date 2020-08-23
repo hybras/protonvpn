@@ -1,6 +1,6 @@
 use super::*;
 use anyhow::Result;
-use std::io::{stdin, stdout, BufRead, BufWriter, Write};
+use std::io::{BufRead, Write};
 use strum::IntoEnumIterator;
 
 /// Encapsulation for mutating ProtonVPN Settings.
