@@ -1,8 +1,8 @@
 use crate::vpn::util::{settings::*, UserConfig};
 use anyhow::{Context, Result};
 
-pub(crate) fn configure(mut config: &mut UserConfig) -> Result<()> {
-    let mut user_settings = UserSettings::from(config.clone());
+pub(crate) fn configure(config: &mut UserConfig) -> Result<()> {
+    let mut user_settings = Settings::<UserConfig>::from(config.clone());
     let options = ["Username", "Tier", "Protocol"];
     println!("Options: ");
     for (idx, &opt) in options.iter().enumerate() {
@@ -40,7 +40,7 @@ mod tests {
     fn test_configure() {
         let mut config = UserConfig::default();
         let res = configure(&mut config);
-       assert!(res.is_ok()); 
-       println!("{:?}", config);
+        assert!(res.is_ok());
+        println!("{:#?}", config);
     }
 }

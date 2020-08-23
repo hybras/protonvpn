@@ -1,6 +1,6 @@
 use super::*;
 use anyhow::Result;
-use std::io::{stdin, stdout, BufRead, BufReader, BufWriter, Write};
+use std::io::{stdin, stdout, BufRead, BufWriter, Write};
 use strum::IntoEnumIterator;
 
 /// Encapsulation for mutating ProtonVPN Settings.
@@ -92,9 +92,7 @@ impl<S> Settings<S> {
 }
 
 /// Adds named setters for UserConfig properties
-pub(crate) type UserSettings = Settings<UserConfig>;
-
-impl UserSettings {
+impl Settings<UserConfig> {
     /// Set the ProtonVPN Username
     pub(crate) fn set_username(&mut self) -> Result<String> {
         self.set_value_field("username", |u| u.username.clone(), |u, t| u.username = t)
@@ -120,7 +118,7 @@ mod tests {
 
     #[test]
     fn test_set_username() {
-        let mut settings = UserSettings::default();
+        let mut settings = Settings::<UserConfig>::default();
         let old = settings.set_username();
         match old {
             Ok(old) => {
@@ -133,7 +131,7 @@ mod tests {
 
     #[test]
     fn test_set_tier() {
-        let mut settings = UserSettings::default();
+        let mut settings = Settings::<UserConfig>::default();
         let old = settings.set_tier();
         match old {
             Ok(old) => {
@@ -145,7 +143,7 @@ mod tests {
     }
     #[test]
     fn test_generic_setter() {
-        let mut settings = UserSettings::default();
+        let mut settings = Settings::<UserConfig>::default();
         let old = settings.set_enum_field(
             "Connection Protocol",
             |u| u.default_protocol,
