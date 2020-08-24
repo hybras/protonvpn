@@ -1,7 +1,7 @@
 use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
 use std::{fmt::Display, str::FromStr};
-use strum_macros::EnumIter;
+use strum_macros::{Display, EnumIter};
 use url::Url;
 
 pub mod settings;
@@ -44,7 +44,7 @@ impl Default for UserConfig {
         }
     }
 }
-#[derive(Debug, Serialize, Deserialize, PartialEq, Copy, Clone, EnumIter)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Copy, Clone, EnumIter, Display)]
 pub(crate) enum PlanTier {
     Free,
     Basic,
