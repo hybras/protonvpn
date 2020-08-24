@@ -6,6 +6,11 @@ use anyhow::{Context, Result};
 use confy::store;
 use std::io::{BufRead, Write};
 
+/// Sets and saves new configuration settings, OVERWRITING the old options.
+///
+/// Reads an int to determine what option is being set. Then calls the appropriate setter from [#Settings]. Then saves it to disk.
+///
+/// TODO: Looping behavior so multiple settings can be changed in one go. 
 pub(crate) fn configure<R, W>(config: &mut UserConfig, r: &mut R, w: &mut W) -> Result<()>
 where
     R: BufRead,

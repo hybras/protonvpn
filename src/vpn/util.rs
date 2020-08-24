@@ -6,9 +6,14 @@ use url::Url;
 
 pub mod settings;
 
+/// Holds all application state
+///
+/// Holds current connection information and settings for the current(only) user
 #[derive(Serialize, Deserialize, Debug, PartialEq, Default)]
 pub(crate) struct Config {
+    /// Actual config info
     pub(crate) user: UserConfig,
+    /// Current connection information
     pub(crate) metadata: Option<MetaData>,
 }
 
@@ -17,6 +22,7 @@ pub(crate) struct UserConfig {
     pub(crate) username: Option<String>,
     pub(crate) tier: PlanTier,
     pub(crate) protocol: ConnectionProtocol,
+    /// TODO: Once the inner working of the official cli are understood, convert this to enum
     pub(crate) dns_leak_protection: u8,
     pub(crate) custom_dns: Option<String>,
     pub(crate) check_update_interval: u8,
@@ -25,9 +31,8 @@ pub(crate) struct UserConfig {
     pub(crate) api_domain: Url,
 }
 
-/// Do not use this directly. It sets the username to a BS value. Use with_user instead
+/// Creates unusable initial state. Must set the username field (is intially None)
 impl Default for UserConfig {
-    /// Do not use this directly. It sets the username to a BS value. Use with_user instead
     fn default() -> Self {
         Self {
             username: None,
@@ -52,35 +57,11 @@ pub(crate) enum PlanTier {
     Visionary,
 }
 
-impl Display for PlanTier {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let string = match self {
-            PlanTier::Free => "Free",
-            PlanTier::Basic => "Basic",
-            PlanTier::Plus => "Plus",
-            PlanTier::Visionary => "Visionary",
-        };
-        write!(f, "{}", string)?;
-        Ok(())
-    }
-}
-
 /// Order here is used to indicate default option: UDP
-#[derive(Debug, Serialize, Deserialize, PartialEq, Copy, Clone, EnumIter)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Copy, Clone, EnumIter, Display)]
 pub enum ConnectionProtocol {
     UDP,
     TCP,
-}
-
-impl Display for ConnectionProtocol {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let string = match self {
-            Self::TCP => "tcp",
-            Self::UDP => "udp",
-        };
-        write!(f, "{}", string)?;
-        Ok(())
-    }
 }
 
 impl Default for ConnectionProtocol {
