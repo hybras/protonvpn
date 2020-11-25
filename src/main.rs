@@ -1,4 +1,4 @@
-use crate::cli::cli_hooks::configure;
+use crate::cli::cli_hooks::*;
 use crate::cli::CliOptions;
 use crate::vpn::constants::APP_NAME;
 use anyhow::Result;
@@ -21,7 +21,9 @@ fn main() -> Result<()> {
     match config_res {
         Ok(mut config) => {
             match opt {
-                Init => writeln!(&mut out_lock, "You already have initialized")?,
+                Init => {
+                    initialize(&mut config.user, &mut in_lock, &mut out_lock)?;
+                }
                 Connect {
                     connection_option: _,
                     protocol: _,
