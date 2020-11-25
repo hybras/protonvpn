@@ -1,5 +1,7 @@
 # Protonvpn-rs
 
+[![Crate Badge](https://buildstats.info/crate/protonvpn)](https://crates.io/crates/protonvpn)
+
 An UNOFFICIAL cli for protonvpn, based on the [official one (in python)](https://github.com/ProtonVPN/linux-cli).
 
 ## Motivation
