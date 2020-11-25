@@ -10,8 +10,8 @@ The official cli is pretty great. It can be loads better in rust.
 
 - [x] CLI (using structopt)  
 - [X] Config structs serialized to [ron](https://crates.io/crates/ron) with [serde](https://serde.rs/).
-- [ ] `init` creates/checks for an existing login
-- [ ] `configure` overwrites any individual settings
+- [X] `init` creates/checks for an existing login
+- [X] `configure` overwrites any individual settings
 - [ ] openvpn connect/disconnect functions using the openvpn cli
 - [ ] Bind connect/disconnect functions to protonvpn's cli
 - [ ] `status` outputs server connection info
