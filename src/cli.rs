@@ -2,7 +2,6 @@ use crate::vpn::util::ConnectionProtocol;
 use structopt::StructOpt;
 
 #[derive(StructOpt, Debug)]
-#[structopt(name = "basic")]
 pub enum CliOptions {
     /// Initialize a ProtonVPN profile.
     Init,
