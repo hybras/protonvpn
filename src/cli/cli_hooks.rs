@@ -63,3 +63,16 @@ mod tests {
         writeln!(stdout, "{:#?}", config).expect("Couldn't write to out");
     }
 }
+
+    /// TODO: This test should use a Cursor for stdin
+    #[test]
+    fn test_initialize() {
+        let mut stdin = BufReader::new(stdin());
+        let out = stdout();
+        let mut stdout = out.lock();
+        let mut config = UserConfig::default();
+        let res = initialize(&mut config, &mut stdin, &mut stdout);
+        assert!(res.is_ok());
+        writeln!(stdout, "{:#?}", config).expect("Couldn't write to out");
+    }
+}
