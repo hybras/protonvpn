@@ -18,9 +18,9 @@ structopt = "0.3"
 lazy_static = "1.4"
 dirs = "3.0.1"
 literally = "0.1.3"
-url = {version = "2.1.1", features = ["serde"]}
+url = {version = "2.2.0", features = ["serde"]}
 serde = "1.0"
 anyhow = "1.0.32"
-strum = "0.19.2"
-strum_macros = "0.19.2"
+strum = "0.20.0"
+strum_macros = "0.20.1"
 confy = "0.4.0"
