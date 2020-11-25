@@ -33,20 +33,23 @@ impl<'a, S, R: BufRead, W: Write> Settings<'a, S, R, W> {
         T: Display + Copy + IntoEnumIterator,
         N: AsRef<str>,
     {
+        writeln!(self.stdout, "{}: ", name.as_ref())?;
         let options: Vec<T> = T::iter().collect();
         for (idx, option) in options.iter().enumerate() {
-            writeln!(&mut self.stdout, "{}) {}", idx, option.to_string())?;
+            writeln!(&mut self.stdout, "\t{}) {}", idx, option.to_string())?;
         }
-        write!(self.stdout, "Enter {}: ", name.as_ref())?;
         let old_value = getter(&mut self.settings);
         let mut new_value = String::new();
         let new_value = loop {
+            write!(self.stdout, "Enter {}: ", name.as_ref())?;
+            self.stdout.flush()?;
+
             self.stdin.read_line(&mut new_value)?;
             let possible_value: usize = new_value.trim().parse()?;
             if (0..options.len()).contains(&(possible_value as usize)) {
                 break possible_value;
             } else {
-                writeln!(&mut self.stdout, "Enter a valid number")?;
+                writeln!(&mut self.stdout, "Enter a 𝑣𝑎𝑙𝑖𝑑 number")?;
                 continue;
             }
         };
@@ -66,6 +69,7 @@ impl<'a, S, R: BufRead, W: Write> Settings<'a, S, R, W> {
         <T as FromStr>::Err: std::marker::Sync + std::error::Error + std::marker::Send + 'static,
     {
         write!(self.stdout, "Enter your {}: ", name.as_ref())?;
+        self.stdout.flush()?;
         let old_value = getter(&self.settings);
         let mut new_value = String::new();
         self.stdin.read_line(&mut new_value)?;
@@ -96,11 +100,7 @@ impl<'a, R: BufRead, W: Write> Settings<'a, UserConfig, R, W> {
     }
 
     pub(crate) fn set_protocol(&mut self) -> Result<ConnectionProtocol> {
-        self.set_enum_field(
-            "Connection Protocol",
-            |u| u.protocol,
-            |u, t| u.protocol = t,
-        )
+        self.set_enum_field("Connection Protocol", |u| u.protocol, |u, t| u.protocol = t)
     }
 }
 
