@@ -8,7 +8,7 @@ pub mod settings;
 
 /// Holds all application state
 ///
-/// Holds current connection information and settings for the current(only) user
+/// Holds current connection information and settings for the current (only) user
 #[derive(Serialize, Deserialize, Debug, PartialEq, Default)]
 pub(crate) struct Config {
     /// Actual config info
