@@ -22,9 +22,8 @@ where
         writeln!(w, "{}) {}", idx, opt)?;
     }
     writeln!(w, "Enter Option: ")?;
-    let stdin = std::io::stdin();
     let mut opt = String::new();
-    stdin.read_line(&mut opt)?;
+    r.read_line(&mut opt)?;
     let opt = opt
         .trim()
         .parse::<u8>()
