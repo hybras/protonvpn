@@ -33,9 +33,7 @@ pub enum ConnectOptions {
     /// Select the fastest ProtonVPN server.
     Fastest,
     /// Determine the country for fastest connect.
-    CountryCode {
-        cc: String,
-    },
+    CountryCode { cc: String },
     /// Connect to the fastest Secure-Core server.
     SecureCore,
     /// Connect to the fastest torrent server.
@@ -44,9 +42,8 @@ pub enum ConnectOptions {
     Tor,
     /// Select a random ProtonVPN server.
     Random,
-    Server {
-        server: String,
-    },
+    /// Select a specific server (must follow the name format)
+    Server { server: String },
 }
 
 pub(crate) mod cli_hooks;
