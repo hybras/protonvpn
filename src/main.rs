@@ -7,6 +7,7 @@ use std::io::{stdin, stdout, Write};
 use structopt::StructOpt;
 use vpn::util::Config;
 use CliOptions::*;
+
 fn main() -> Result<()> {
     let opt = CliOptions::from_args();
     // Get stdio handles. These are passed through the entire program
