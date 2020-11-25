@@ -41,7 +41,9 @@ fn main() -> Result<()> {
         }
         Err(_) => {
             match opt {
-                Init => {}
+                Init => {
+                    initialize(&mut Default::default(), &mut in_lock, &mut out_lock)?;
+                }
                 _ => writeln!(
                     &mut out_lock,
                     "Unable to load your profile. Try running `protonvpn init` again."
