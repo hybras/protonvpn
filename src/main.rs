@@ -17,7 +17,7 @@ fn main() -> Result<()> {
     let mut out_lock = stdout.lock();
 
     let config_res = load::<Config>(APP_NAME);
-    
+
     match config_res {
         Ok(mut config) => {
             match opt {
