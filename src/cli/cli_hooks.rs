@@ -55,6 +55,7 @@ where
     user_settings.set_tier()?;
     user_settings.set_protocol()?;
     *config = user_settings.inner();
+    store(APP_NAME, config).context("Couldn't save settings")?;
     Ok(())
 }
 
