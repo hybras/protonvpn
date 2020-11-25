@@ -10,7 +10,6 @@ use std::io::{BufRead, Write};
 ///
 /// Reads an int to determine what option is being set. Then calls the appropriate setter from [#Settings]. Then saves it to disk.
 ///
-/// TODO: Looping behavior so multiple settings can be changed in one go. 
 pub(crate) fn configure<R, W>(config: &mut UserConfig, r: &mut R, w: &mut W) -> Result<()>
 where
     R: BufRead,
@@ -46,11 +45,25 @@ where
     Ok(())
 }
 
+pub(crate) fn initialize<R, W>(config: &mut UserConfig, r: &mut R, w: &mut W) -> Result<()>
+where
+    R: BufRead,
+    W: Write,
+{
+    let mut user_settings = Settings::new(config.clone(), w, r);
+    user_settings.set_username()?;
+    user_settings.set_tier()?;
+    user_settings.set_protocol()?;
+    *config = user_settings.inner();
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use std::io::{stdin, stdout, BufReader};
 
+    /// TODO: This test should use a Cursor for stdin
     #[test]
     fn test_configure() {
         let _input = b"2\n";
@@ -62,7 +75,6 @@ mod tests {
         assert!(res.is_ok());
         writeln!(stdout, "{:#?}", config).expect("Couldn't write to out");
     }
-}
 
     /// TODO: This test should use a Cursor for stdin
     #[test]
