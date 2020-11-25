@@ -1,6 +1,9 @@
 use crate::vpn::util::ConnectionProtocol;
 use structopt::StructOpt;
 
+/// An enum for all the cli's subcommands
+///
+/// The enum options correspond one to one with ALL features of the cli (planned or otherwise). Read the docs on each option to learn what they do.
 #[derive(StructOpt, Debug)]
 pub enum CliOptions {
     /// Initialize a ProtonVPN profile.
@@ -20,7 +23,7 @@ pub enum CliOptions {
     Disconnect,
     /// Print information about the current session.
     Status,
-    /// Show connection status.
+    /// Edit one setting Repeatedly call this if you need to change many settings.
     Configure,
     /// Refresh OpenVPN configuration and server data.
     Refresh,
