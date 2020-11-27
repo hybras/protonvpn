@@ -8,6 +8,12 @@ An UNOFFICIAL cli for protonvpn, based on the [official one (in python)](https:/
 
 The official cli is pretty great. It can be loads better in rust.
 
+
+## Links for Later
+
+[CLI Libs](https://lib.rs/command-line-interface)
+[`std::process`](https://doc.rust-lang.org/std/process/index.html)
+
 ## Todo
 
 - [x] CLI (using structopt)  
