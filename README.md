@@ -4,10 +4,9 @@
 
 An UNOFFICIAL cli for protonvpn, based on the [official one (in python)](https://github.com/ProtonVPN/linux-cli).
 
-## Motivation
+## Status
 
-The official cli is pretty great. It can be loads better in rust.
-
+Currently all this crate is capable of is editing settings (and not very well). The password is not stored yet, and this was all done without using tui libs (I didn't know about them at the time).
 
 ## Links for Later
 
