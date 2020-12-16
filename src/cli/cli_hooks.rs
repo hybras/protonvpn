@@ -56,30 +56,41 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::io::{stdin, stdout, BufReader};
+    use std::io::Cursor;
 
-    /// TODO: This test should use a Cursor for stdin
     #[test]
-    fn test_configure() {
-        let _input = b"2\n";
-        let mut stdin = BufReader::new(stdin());
-        let out = stdout();
-        let mut stdout = out.lock();
+    fn test_configure() -> Result<()> {
+        let mut stdin = Cursor::new("0\nhybras\n");
+        let mut stdout = Cursor::new(vec![]);
+
+        let expected = UserConfig {
+            username: Some("hybras".into()),
+            ..Default::default()
+        };
         let mut config = UserConfig::default();
-        let res = configure(&mut config, &mut stdin, &mut stdout);
-        assert!(res.is_ok());
-        writeln!(stdout, "{:#?}", config).expect("Couldn't write to out");
+
+        let _ = configure(&mut config, &mut stdin, &mut stdout)
+            .context("Failed to interact with user to get config")?;
+        assert_eq!(expected, config);
+        Ok(())
     }
 
-    /// TODO: This test should use a Cursor for stdin
     #[test]
-    fn test_initialize() {
-        let mut stdin = BufReader::new(stdin());
-        let out = stdout();
-        let mut stdout = out.lock();
+    fn test_initialize() -> Result<()> {
+        let mut stdin = Cursor::new("hybras\n2\n1\n");
+        let mut stdout = Cursor::new(vec![]);
+
+        let expected = UserConfig {
+            username: Some("hybras".into()),
+            tier: crate::vpn::util::PlanTier::Plus,
+            protocol: crate::vpn::util::ConnectionProtocol::TCP,
+            ..Default::default()
+        };
         let mut config = UserConfig::default();
-        let res = initialize(&mut config, &mut stdin, &mut stdout);
-        assert!(res.is_ok());
-        writeln!(stdout, "{:#?}", config).expect("Couldn't write to out");
+
+        let _ = initialize(&mut config, &mut stdin, &mut stdout)
+            .context("Failed to interact with user to get config")?;
+        assert_eq!(expected, config);
+        Ok(())
     }
 }
