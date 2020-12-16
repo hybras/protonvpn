@@ -1,7 +1,7 @@
 use crate::cli::cli_hooks::*;
 use crate::cli::CliOptions;
 use crate::vpn::constants::APP_NAME;
-use anyhow::Result;
+use anyhow::{Context, Result};
 use confy::load;
 use std::io::{stdin, stdout, Write};
 use structopt::StructOpt;
@@ -23,6 +23,8 @@ fn main() -> Result<()> {
             match opt {
                 Init => {
                     initialize(&mut config.user, &mut in_lock, &mut out_lock)?;
+                    confy::store(APP_NAME, config.user)
+                        .context("Couldn't store your configuration")?;
                 }
                 Connect {
                     connection_option: _,
@@ -33,6 +35,8 @@ fn main() -> Result<()> {
                 Status => {}
                 Configure => {
                     configure(&mut config.user, &mut in_lock, &mut out_lock)?;
+                    confy::store(APP_NAME, config.user)
+                        .context("Couldn't store your configuration")?;
                 }
                 Refresh => {}
                 Examples => {}
