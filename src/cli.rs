@@ -49,4 +49,4 @@ pub enum ConnectOptions {
     Server { server: String },
 }
 
-pub(crate) mod cli_hooks;
+pub mod cli_hooks;

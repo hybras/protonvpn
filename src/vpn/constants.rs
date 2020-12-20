@@ -289,4 +289,4 @@ lazy_static! {
     };
 }
 
-pub(crate) const APP_NAME: &'static str = "protonvpn";
+pub const APP_NAME: &'static str = "protonvpn";

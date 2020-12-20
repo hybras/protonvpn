@@ -6,7 +6,7 @@ use std::io::{BufRead, Write};
 ///
 /// Reads an int to determine what option is being set. Then calls the appropriate setter from [#Settings]. Does not save it to disk.
 ///
-pub(crate) fn configure<R, W>(config: &mut UserConfig, r: &mut R, w: &mut W) -> Result<()>
+pub fn configure<R, W>(config: &mut UserConfig, r: &mut R, w: &mut W) -> Result<()>
 where
     R: BufRead,
     W: Write,
@@ -40,7 +40,7 @@ where
     Ok(())
 }
 
-pub(crate) fn initialize<R, W>(config: &mut UserConfig, r: &mut R, w: &mut W) -> Result<()>
+pub fn initialize<R, W>(config: &mut UserConfig, r: &mut R, w: &mut W) -> Result<()>
 where
     R: BufRead,
     W: Write,
