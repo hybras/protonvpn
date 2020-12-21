@@ -14,7 +14,7 @@ pub struct Config {
     /// Actual config info
     pub user: UserConfig,
     /// Current connection information
-    pub(crate) metadata: Option<MetaData>,
+    pub metadata: Option<MetaData>,
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
@@ -82,7 +82,7 @@ impl FromStr for ConnectionProtocol {
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
-pub(crate) struct MetaData {
+pub struct MetaData {
     pub(crate) server: String,
     pub(crate) protocol: ConnectionProtocol,
     pub(crate) dns_server: String,
