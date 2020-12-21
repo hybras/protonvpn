@@ -289,4 +289,5 @@ lazy_static! {
     };
 }
 
-pub const APP_NAME: &'static str = "protonvpn";
+pub const APP_NAME: &'static str = "protonvpn-rs";
+pub const VERSION: &'static str = structopt::clap::crate_version!();
