@@ -5,11 +5,12 @@ use protonvpn::{
     vpn::constants::APP_NAME,
     vpn::util::Config,
 };
-use std::io::{stdin, stdout, Write};
 use structopt::StructOpt;
+use tokio::prelude::io::{stdin, stdout};
 use CliOptions::*;
 
-fn main() -> Result<()> {
+#[tokio::main]
+async fn main() -> Result<()> {
     let opt = CliOptions::from_args();
     // Get stdio handles. These are passed through the entire program
     let stdin = stdin();

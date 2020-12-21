@@ -1,24 +1,24 @@
 use crate::vpn::util::{settings::*, UserConfig};
 use anyhow::{Context, Result};
-use std::io::{BufRead, Write};
+use tokio::io::{AsyncBufReadExt, AsyncWriteExt};
 
 /// Sets and saves new configuration settings, OVERWRITING the old options.
 ///
 /// Reads an int to determine what option is being set. Then calls the appropriate setter from [#Settings]. Does not save it to disk.
 ///
-pub fn configure<R, W>(config: &mut UserConfig, r: &mut R, w: &mut W) -> Result<()>
+pub async fn configure<R, W>(config: &mut UserConfig, r: &mut R, w: &mut W) -> Result<()>
 where
-    R: BufRead,
-    W: Write,
+    R: AsyncBufReadExt + Unpin,
+    W: AsyncWriteExt + Unpin,
 {
     let options = ["Username", "Tier", "Protocol"];
-    writeln!(w, "Options: ")?;
+    w.write(b"Options: \n").await?;
     for (idx, &opt) in options.iter().enumerate() {
-        writeln!(w, "{}) {}", idx, opt)?;
+        w.write(format!("{}) {}", idx, opt).as_bytes()).await?;
     }
-    writeln!(w, "Enter Option: ")?;
+    w.write(b"Enter Option: ").await?;
     let mut opt = String::new();
-    r.read_line(&mut opt)?;
+    r.read_line(&mut opt).await?;
     let opt = opt
         .trim()
         .parse::<u8>()
@@ -42,8 +42,8 @@ where
 
 pub fn initialize<R, W>(config: &mut UserConfig, r: &mut R, w: &mut W) -> Result<()>
 where
-    R: BufRead,
-    W: Write,
+    R: AsyncBufReadExt + Unpin,
+    W: AsyncWriteExt + Unpin,
 {
     let mut user_settings = Settings::new(config.clone(), w, r);
     user_settings.set_username()?;
