@@ -363,6 +363,7 @@ dependencies = [
  "lazy_static",
  "literally",
  "serde",
+ "serde_json",
  "structopt",
  "strum",
  "strum_macros",
