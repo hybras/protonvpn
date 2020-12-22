@@ -1,7 +1,7 @@
 use super::*;
 use anyhow::Result;
+use std::io::{BufRead, Write};
 use strum::IntoEnumIterator;
-use tokio::io::{AsyncBufReadExt, AsyncWriteExt};
 
 /// Encapsulation for mutating ProtonVPN Settings.
 ///
@@ -9,13 +9,13 @@ use tokio::io::{AsyncBufReadExt, AsyncWriteExt};
 /// and writes it to the internal config struct. It does not write the settings to disk.
 ///
 /// In the future, this struct should store stdin/stdout handles for buffering, and write settings upon Drop.
-pub(crate) struct Settings<'a, S, R: AsyncBufReadExt, W: AsyncWriteExt> {
+pub(crate) struct Settings<'a, S, R: BufRead, W: Write> {
     settings: S,
     stdout: &'a mut W,
     stdin: &'a mut R,
 }
 
-impl<'a, S, R: AsyncBufReadExt, W: AsyncWriteExt> Settings<'a, S, R, W> {
+impl<'a, S, R: BufRead, W: Write> Settings<'a, S, R, W> {
     pub fn new(settings: S, stdout: &'a mut W, stdin: &'a mut R) -> Self {
         Self {
             settings,
@@ -84,7 +84,7 @@ impl<'a, S, R: AsyncBufReadExt, W: AsyncWriteExt> Settings<'a, S, R, W> {
 }
 
 /// Adds named setters for UserConfig properties
-impl<'a, R: AsyncBufReadExt, W: AsyncWriteExt> Settings<'a, UserConfig, R, W> {
+impl<'a, R: BufRead, W: Write> Settings<'a, UserConfig, R, W> {
     /// Set the ProtonVPN Username
     pub(crate) fn set_username(&mut self) -> Result<String> {
         self.set_value_field(
