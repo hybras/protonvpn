@@ -16,7 +16,7 @@ pub struct Config {
     /// Current connection information
     pub connection_info: Option<ConnectionInfo>,
     /// Random extra info
-    pub metadata: Option<MetaData>,
+    pub metadata: MetaData,
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
@@ -85,8 +85,17 @@ impl FromStr for ConnectionProtocol {
 
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub struct MetaData {
-    pub(crate) resolvconf_hash: String,
+    pub(crate) resolvconf_hash: Option<String>,
     pub(crate) last_api_pull: DateTime<Utc>,
+}
+
+impl Default for MetaData {
+    fn default() -> Self {
+        Self {
+            resolvconf_hash: None,
+            last_api_pull: Utc.timestamp_millis(0),
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
