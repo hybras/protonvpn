@@ -14,6 +14,8 @@ pub struct Config {
     /// Actual config info
     pub user: UserConfig,
     /// Current connection information
+    pub connection_info: Option<ConnectionInfo>,
+    /// Random extra info
     pub metadata: Option<MetaData>,
 }
 
@@ -83,10 +85,14 @@ impl FromStr for ConnectionProtocol {
 
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub struct MetaData {
+    pub(crate) resolvconf_hash: String,
+    pub(crate) last_api_pull: DateTime<Utc>,
+}
+
+#[derive(Serialize, Deserialize, Debug, PartialEq)]
+pub struct ConnectionInfo {
     pub(crate) server: String,
     pub(crate) protocol: ConnectionProtocol,
     pub(crate) dns_server: String,
     pub(crate) connected_time: String,
-    pub(crate) resolvconf_hash: String,
-    pub(crate) last_api_pull: DateTime<Utc>,
 }
