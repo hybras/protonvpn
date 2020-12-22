@@ -10,15 +10,15 @@ pub mod settings;
 ///
 /// Holds current connection information and settings for the current (only) user
 #[derive(Serialize, Deserialize, Debug, PartialEq, Default)]
-pub(crate) struct Config {
+pub struct Config {
     /// Actual config info
-    pub(crate) user: UserConfig,
+    pub user: UserConfig,
     /// Current connection information
-    pub(crate) metadata: Option<MetaData>,
+    pub metadata: Option<MetaData>,
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
-pub(crate) struct UserConfig {
+pub struct UserConfig {
     pub(crate) username: Option<String>,
     pub(crate) tier: PlanTier,
     pub(crate) protocol: ConnectionProtocol,
@@ -82,7 +82,7 @@ impl FromStr for ConnectionProtocol {
 }
 
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
-pub(crate) struct MetaData {
+pub struct MetaData {
     pub(crate) server: String,
     pub(crate) protocol: ConnectionProtocol,
     pub(crate) dns_server: String,

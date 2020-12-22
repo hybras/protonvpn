@@ -1,11 +1,12 @@
-use crate::cli::cli_hooks::*;
-use crate::cli::CliOptions;
-use crate::vpn::constants::APP_NAME;
 use anyhow::{Context, Result};
 use confy::load;
+use protonvpn::{
+    cli::{cli_hooks::*, CliOptions},
+    vpn::constants::APP_NAME,
+    vpn::util::Config,
+};
 use std::io::{stdin, stdout, Write};
 use structopt::StructOpt;
-use vpn::util::Config;
 use CliOptions::*;
 
 fn main() -> Result<()> {
@@ -57,6 +58,3 @@ fn main() -> Result<()> {
         }
     }
 }
-
-mod cli;
-mod vpn;
