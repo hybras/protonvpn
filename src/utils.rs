@@ -1,11 +1,16 @@
-use std::net::Ipv4Addr;
+use std::{fs::File, io::BufWriter, net::Ipv4Addr};
 
 use anyhow::{Context, Result};
+use chrono::{Duration, Utc};
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use serde_json::to_writer;
 use ureq::Agent;
 use url::Url;
 
-use crate::vpn::constants::VERSION;
+use crate::vpn::{
+    constants::{SERVER_INFO_FILE, VERSION},
+    util::Config,
+};
 
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "PascalCase")]
@@ -43,7 +48,7 @@ struct Server {
     status: i8,
 }
 
-/// This function adds the protonvpn api headers and deserializes the response.
+/// This function adds the protonvpn api headers and deserializes the response. TODO: Add the headers to the agent itself
 fn call_endpoint<T>(url: &Url, agent: &Agent) -> Result<T>
 where
     T: DeserializeOwned,
@@ -58,6 +63,27 @@ where
         .context("couldn't deserialize api response")
 }
 
+/// Calls the protonvpn api endpoint `vpn/logicals`, and stores the result in the [server info file](#crate::vpn::constants::SERVER_INFO_FILE)
+fn pull_server_data(config: &mut Config, agent: &Agent) -> Result<()> {
+    // If its been at least 15 mins since the last server check
+    if Utc::now() - config.metadata.last_api_pull > Duration::minutes(15) {
+        // Download the list of servers
+        let response: ServersResponse = call_endpoint(
+            {
+                config.user.api_domain.set_path("vpn/logicals");
+                &config.user.api_domain
+            },
+            agent,
+        )
+        .context("failed to call vpn/logicals endpoint")?;
+
+        // Write them to the file
+        let server_info_file = BufWriter::new(File::open(SERVER_INFO_FILE.as_path())?);
+        to_writer(server_info_file, &response)?;
+    }
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
 
@@ -69,7 +95,7 @@ mod tests {
     fn test_call_endpoint() -> Result<()> {
         let agent = agent();
         let url = Url::parse("https://api.protonvpn.ch/vpn/logicals")?;
-        call_endpoint(&url,&agent)?;
+        call_endpoint(&url, &agent)?;
         Ok(())
     }
 }
