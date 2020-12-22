@@ -44,7 +44,7 @@ struct Server {
 }
 
 /// This function adds the protonvpn api headers and deserializes the response.
-fn call_endpoint<T>(url: Url, agent: Agent) -> Result<T>
+fn call_endpoint<T>(url: &Url, agent: &Agent) -> Result<T>
 where
     T: DeserializeOwned,
 {
@@ -69,6 +69,7 @@ mod tests {
     fn test_call_endpoint() -> Result<()> {
         let agent = agent();
         let url = Url::parse("https://api.protonvpn.ch/vpn/logicals")?;
+        call_endpoint(&url,&agent)?;
         Ok(())
     }
 }
