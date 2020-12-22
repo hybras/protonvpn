@@ -1,6 +1,8 @@
 use crate::vpn::util::ConnectionProtocol;
 use structopt::StructOpt;
 
+pub mod cli_hooks;
+
 /// An enum for all the cli's subcommands
 ///
 /// The enum options correspond one to one with ALL features of the cli (planned or otherwise). Read the docs on each option to learn what they do.
@@ -48,5 +50,3 @@ pub enum ConnectOptions {
     /// Select a specific server (must follow the name format)
     Server { server: String },
 }
-
-pub mod cli_hooks;
