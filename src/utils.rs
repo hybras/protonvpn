@@ -1,8 +1,9 @@
 use std::net::Ipv4Addr;
 
 use anyhow::{Context, Result};
-use reqwest::{Client, Url, get};
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use ureq::Agent;
+use url::Url;
 
 use crate::vpn::constants::VERSION;
 
@@ -43,33 +44,31 @@ struct Server {
 }
 
 /// This function adds the protonvpn api headers and deserializes the response.
-async fn call_endpoint<T>(url: Url, client: Client) -> Result<T>
+fn call_endpoint<T>(url: Url, agent: Agent) -> Result<T>
 where
     T: DeserializeOwned,
 {
-    client
-        .get(url)
-        .header("x-pm-appversion", format!("LinuxVPN_{}", VERSION,))
-        .header("x-pm-apiversion", "3")
-        .header("Accept", "application/vnd.protonmail.v1+json")
-        .send()
-        .await?
-        .json::<T>()
-        .await
+    agent
+        .request_url("GET", &url)
+        .set("x-pm-appversion", format!("LinuxVPN_{}", VERSION).as_ref())
+        .set("x-pm-apiversion", "3")
+        .set("Accept", "application/vnd.protonmail.v1+json")
+        .call()?
+        .into_json::<T>()
         .context("couldn't deserialize api response")
 }
 
 #[cfg(test)]
 mod tests {
-    use tokio::test;
+
+    use ureq::agent;
 
     use super::*;
 
     #[test]
-    async fn test_call_endpoint() -> Result<()> {
-        let client = Client::new();
+    fn test_call_endpoint() -> Result<()> {
+        let agent = agent();
         let url = Url::parse("https://api.protonvpn.ch/vpn/logicals")?;
-        dbg!(call_endpoint::<ServersResponse>(url, client).await?);
         Ok(())
     }
 }
