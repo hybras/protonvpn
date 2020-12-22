@@ -1,9 +1,9 @@
 use anyhow::{Context, Result};
+use chrono::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::{fmt::Display, str::FromStr};
 use strum_macros::{Display, EnumIter};
 use url::Url;
-
 pub mod settings;
 
 /// Holds all application state
@@ -88,5 +88,5 @@ pub struct MetaData {
     pub(crate) dns_server: String,
     pub(crate) connected_time: String,
     pub(crate) resolvconf_hash: String,
-    pub(crate) last_update_check: String,
+    pub(crate) last_api_pull: DateTime<Utc>,
 }
