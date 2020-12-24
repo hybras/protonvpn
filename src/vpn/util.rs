@@ -1,7 +1,7 @@
 use anyhow::{Context, Result};
 use chrono::prelude::*;
 use serde::{Deserialize, Serialize};
-use std::{fmt::Display, str::FromStr};
+use std::{fmt::Display, net::Ipv4Addr, str::FromStr};
 use strum_macros::{Display, EnumIter};
 use url::Url;
 pub mod settings;
@@ -24,9 +24,10 @@ pub struct UserConfig {
     pub(crate) username: Option<String>,
     pub(crate) tier: PlanTier,
     pub(crate) protocol: ConnectionProtocol,
-    /// TODO: Once the inner working of the official cli are understood, convert this to enum
-    pub(crate) dns_leak_protection: u8,
-    pub(crate) custom_dns: Option<String>,
+    /// A recommended security setting that enables using Proton VPN's dns servers, or your own. In other words, don't use the dns servers from your operating system / internet service provider
+    pub(crate) dns_leak_protection: bool,
+    /// This setting is only referenced if the dns_leak_protection is enabled
+    pub(crate) custom_dns: Vec<Ipv4Addr>,
     pub(crate) check_update_interval: u8,
     pub(crate) killswitch: u8,
     pub(crate) split_tunnel: u8,
@@ -40,8 +41,8 @@ impl Default for UserConfig {
             username: None,
             tier: PlanTier::Free,
             protocol: ConnectionProtocol::UDP,
-            dns_leak_protection: 0,
-            custom_dns: None,
+            dns_leak_protection: true,
+            custom_dns: Vec::with_capacity(3),
             check_update_interval: 3,
             killswitch: 0,
             split_tunnel: 0,
