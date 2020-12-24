@@ -88,6 +88,7 @@ fn pull_server_data(config: &mut Config, agent: &Agent) -> Result<()> {
     Ok(())
 }
 
+/// Returns servers that are available to the user and current are up
 fn get_servers(config: &Config) -> Result<Vec<LogicalServer>> {
     let server_info_file = BufReader::new(File::open(SERVER_INFO_FILE.as_path())?);
     let mut servers: ServersResponse = serde_json::from_reader(server_info_file)?;
