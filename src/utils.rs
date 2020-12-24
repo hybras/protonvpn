@@ -3,7 +3,6 @@ use std::{fs::File, io::BufWriter, net::Ipv4Addr};
 use anyhow::{Context, Result};
 use chrono::{Duration, Utc};
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
-use serde_json::to_writer;
 use ureq::Agent;
 use url::Url;
 
@@ -79,7 +78,7 @@ fn pull_server_data(config: &mut Config, agent: &Agent) -> Result<()> {
 
         // Write them to the file
         let server_info_file = BufWriter::new(File::open(SERVER_INFO_FILE.as_path())?);
-        to_writer(server_info_file, &response)?;
+        serde_json::to_writer(server_info_file, &response)?;
     }
     Ok(())
 }
