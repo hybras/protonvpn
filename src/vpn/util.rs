@@ -54,12 +54,28 @@ impl Default for UserConfig {
         }
     }
 }
-#[derive(Debug, Serialize, Deserialize, PartialEq, Copy, Clone, EnumIter, Display)]
+#[derive(
+    Debug, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Copy, Clone, EnumIter, Display,
+)]
 pub(crate) enum PlanTier {
     Free,
     Basic,
     Plus,
     Visionary,
+}
+
+impl From<u8> for PlanTier {
+    fn from(u: u8) -> Self {
+        use PlanTier::*;
+
+        match u {
+            0 => Free,
+            1 => Basic,
+            2 => Plus,
+            3 => Visionary,
+            _ => panic!("u8 was too big to convert to PlanTier"),
+        }
+    }
 }
 
 /// Order here is used to indicate default option: UDP
