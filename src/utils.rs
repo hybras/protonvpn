@@ -12,12 +12,13 @@ use url::Url;
 
 use crate::vpn::{
     constants::{SERVER_INFO_FILE, VERSION},
-    util::Config,
+    util::{Config, PlanTier},
 };
 
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "PascalCase")]
 struct ServersResponse {
+    /// No idea what this field is
     code: i32,
     logical_servers: Vec<LogicalServer>,
 }
@@ -85,6 +86,15 @@ fn pull_server_data(config: &mut Config, agent: &Agent) -> Result<()> {
         serde_json::to_writer(server_info_file, &response)?;
     }
     Ok(())
+}
+
+fn get_servers(config: &Config) -> Result<Vec<LogicalServer>> {
+    let server_info_file = BufReader::new(File::open(SERVER_INFO_FILE.as_path())?);
+    let mut servers: ServersResponse = serde_json::from_reader(server_info_file)?;
+    servers
+        .logical_servers
+        .retain(|it| PlanTier::from(it.tier) <= config.user.tier && it.status == 1);
+    Ok(servers.logical_servers)
 }
 
 #[cfg(test)]
