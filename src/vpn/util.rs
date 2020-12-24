@@ -19,6 +19,7 @@ pub struct Config {
     pub metadata: MetaData,
 }
 
+/// Hold's all user settings. See the docs on each field to learn more.
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub struct UserConfig {
     pub(crate) username: Option<String>,
@@ -31,6 +32,7 @@ pub struct UserConfig {
     pub(crate) check_update_interval: u8,
     pub(crate) killswitch: u8,
     pub(crate) split_tunnel: u8,
+    // Remove this field. It can't change. Its always the default (see impl Default)
     pub(crate) api_domain: Url,
 }
 
