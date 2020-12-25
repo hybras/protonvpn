@@ -52,6 +52,14 @@ struct Server {
     status: i8,
 }
 
+#[derive(Serialize, Deserialize, Debug)]
+struct IpInfo {
+    #[serde(rename = "IP")]
+    ip: Ipv4Addr,
+    #[serde(rename = "ISP")]
+    isp: String,
+}
+
 /// This function adds the protonvpn api headers and deserializes the response. TODO: Add the headers to the agent itself
 fn call_endpoint<T>(url: &Url, agent: &Agent) -> Result<T>
 where
@@ -98,6 +106,14 @@ fn get_servers(config: &Config) -> Result<Vec<LogicalServer>> {
     Ok(servers.logical_servers)
 }
 
+/// Return the current public IP Address
+fn ip_info(config: &Config, agent: &Agent) -> Result<IpInfo> {
+    let mut url = config.user.api_domain.clone();
+    url.set_path("/vpn/location");
+    let resp = call_endpoint::<IpInfo>(&url, &agent)?;
+    Ok(resp)
+}
+
 #[cfg(test)]
 mod tests {
 
@@ -110,6 +126,13 @@ mod tests {
         let agent = agent();
         let url = Url::parse("https://api.protonvpn.ch/vpn/logicals")?;
         call_endpoint(&url, &agent)?;
+        Ok(())
+    }
+
+    #[test]
+    fn test_ip_info() -> Result<()> {
+        let agent = agent();
+        let ip_info = ip_info(&mut Default::default(), &agent)?;
         Ok(())
     }
 }
