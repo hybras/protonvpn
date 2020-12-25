@@ -113,8 +113,6 @@ fn ip_info(config: &Config) -> Result<IpInfo> {
 #[cfg(test)]
 mod tests {
 
-    use ureq::agent;
-
     use super::*;
 
     #[test]
