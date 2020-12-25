@@ -7,7 +7,7 @@ use std::{
 use anyhow::{Context, Result};
 use chrono::{Duration, Utc};
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
-use ureq::Agent;
+use ureq::{agent, Agent};
 use url::Url;
 
 use crate::vpn::{
@@ -61,12 +61,11 @@ struct IpInfo {
 }
 
 /// This function adds the protonvpn api headers and deserializes the response. TODO: Add the headers to the agent itself
-fn call_endpoint<T>(url: &Url, agent: &Agent) -> Result<T>
+fn call_endpoint<T>(url: &Url) -> Result<T>
 where
     T: DeserializeOwned,
 {
-    agent
-        .request_url("GET", &url)
+    ureq::get(url.as_str())
         .set("x-pm-appversion", format!("LinuxVPN_{}", VERSION).as_ref())
         .set("x-pm-apiversion", "3")
         .set("Accept", "application/vnd.protonmail.v1+json")
@@ -76,17 +75,14 @@ where
 }
 
 /// Calls the protonvpn api endpoint `vpn/logicals`, and stores the result in the [server info file](#crate::vpn::constants::SERVER_INFO_FILE)
-fn pull_server_data(config: &mut Config, agent: &Agent) -> Result<()> {
+fn pull_server_data(config: &mut Config) -> Result<()> {
     // If its been at least 15 mins since the last server check
     if Utc::now() - config.metadata.last_api_pull > Duration::minutes(15) {
         // Download the list of servers
-        let response: ServersResponse = call_endpoint(
-            {
-                config.user.api_domain.set_path("vpn/logicals");
-                &config.user.api_domain
-            },
-            agent,
-        )
+        let response: ServersResponse = call_endpoint({
+            config.user.api_domain.set_path("vpn/logicals");
+            &config.user.api_domain
+        })
         .context("failed to call vpn/logicals endpoint")?;
 
         // Write them to the file
@@ -107,10 +103,10 @@ fn get_servers(config: &Config) -> Result<Vec<LogicalServer>> {
 }
 
 /// Return the current public IP Address
-fn ip_info(config: &Config, agent: &Agent) -> Result<IpInfo> {
+fn ip_info(config: &Config) -> Result<IpInfo> {
     let mut url = config.user.api_domain.clone();
     url.set_path("/vpn/location");
-    let resp = call_endpoint::<IpInfo>(&url, &agent)?;
+    let resp = call_endpoint::<IpInfo>(&url)?;
     Ok(resp)
 }
 
@@ -123,16 +119,14 @@ mod tests {
 
     #[test]
     fn test_call_endpoint() -> Result<()> {
-        let agent = agent();
         let url = Url::parse("https://api.protonvpn.ch/vpn/logicals")?;
-        call_endpoint(&url, &agent)?;
+        call_endpoint(&url)?;
         Ok(())
     }
 
     #[test]
     fn test_ip_info() -> Result<()> {
-        let agent = agent();
-        let ip_info = ip_info(&mut Default::default(), &agent)?;
+        let _ip_info = ip_info(&mut Default::default())?;
         Ok(())
     }
 }
