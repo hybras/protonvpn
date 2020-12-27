@@ -115,11 +115,14 @@ mod tests {
 
     use super::*;
 
+    #[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
+    struct Test {}
+
     #[test]
-    fn test_call_endpoint() -> Result<()> {
-        let url = Url::parse("https://api.protonvpn.ch/vpn/logicals")?;
-        call_endpoint(&url)?;
-        Ok(())
+    fn test_call_endpoint() {
+        let url = Url::parse("https://api.protonvpn.ch").unwrap();
+        let t = call_endpoint::<Test>(&url);
+        assert!(t.is_err());
     }
 
     #[test]
