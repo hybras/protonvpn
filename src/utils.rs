@@ -59,7 +59,7 @@ struct IpInfo {
     isp: String,
 }
 
-/// This function adds the protonvpn api headers and deserializes the response. TODO: Add the headers to the agent itself
+/// This function adds the protonvpn api headers and deserializes the response.
 fn call_endpoint<T>(url: &Url) -> Result<T>
 where
     T: DeserializeOwned,
