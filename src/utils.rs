@@ -7,7 +7,6 @@ use std::{
 use anyhow::{Context, Result};
 use chrono::{Duration, Utc};
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
-use ureq::{agent, Agent};
 use url::Url;
 
 use crate::vpn::{
