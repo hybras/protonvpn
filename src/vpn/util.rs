@@ -31,7 +31,7 @@ pub struct UserConfig {
     pub(crate) custom_dns: Vec<Ipv4Addr>,
     pub(crate) check_update_interval: u8,
     pub(crate) killswitch: u8,
-    pub(crate) split_tunnel: u8,
+    pub(crate) split_tunnel: bool,
     // Remove this field. It can't change. Its always the default (see impl Default)
     pub(crate) api_domain: Url,
 }
@@ -47,7 +47,7 @@ impl Default for UserConfig {
             custom_dns: Vec::with_capacity(3),
             check_update_interval: 3,
             killswitch: 0,
-            split_tunnel: 0,
+            split_tunnel: false,
             api_domain: Url::parse("https://api.protonvpn.ch")
                 .context("Failed to parse protonvpn api url")
                 .unwrap(),
