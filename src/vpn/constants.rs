@@ -6,6 +6,7 @@ use std::collections::HashMap;
 use std::env;
 use std::path::PathBuf;
 
+// TODO remove dependencies between lazy static vars (many of them depend on config dir)
 lazy_static! {
     pub(crate) static ref USER: String = env::var("USER").unwrap();
     pub(crate) static ref CONFIG_DIR: PathBuf = {
