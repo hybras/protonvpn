@@ -4,6 +4,7 @@
         "deserializes",
         "killswitch",
         "logicals",
+        "openvpn",
         "protonmail",
         "protonvpn",
         "resolvconf"
