@@ -13,7 +13,8 @@ lazy_static! {
         let mut home = home_dir()
             .context("Couldn't locate user's home dir.")
             .unwrap();
-        home.push(".pvpn-cli");
+        home.push(".config");
+        home.push("protonvpn");
         home
     };
     pub(crate) static ref SERVER_INFO_FILE: PathBuf = {
@@ -39,7 +40,7 @@ lazy_static! {
     pub(crate) static ref PASSFILE: PathBuf = {
         let mut path = CONFIG_DIR.clone();
         // Would be better as "ovpnpass", but alas compatibility
-        path.push("pvpnpass");
+        path.push("ovpnpass");
         path
     };
     pub(crate) static ref COUNTRY_CODES: HashMap<String, String> = hmap! {
