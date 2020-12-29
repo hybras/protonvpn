@@ -3,13 +3,18 @@ use std::{
     io::{BufRead, BufReader, BufWriter, Write},
     net::Ipv4Addr,
     path::Path,
+    process::Command,
 };
 
 use anyhow::{Context, Result};
 use askama::Template;
 use util::ConnectionProtocol;
 
-pub mod constants;
+use crate::{
+    constants::{OVPN_FILE, OVPN_LOG, PASSFILE},
+    utils::Server,
+};
+
 pub mod util;
 
 #[derive(Template)] // this will generate the code...
@@ -81,6 +86,38 @@ fn create_openvpn_config(
     Ok(())
 }
 
+fn connect(server: &Server, protocol: &ConnectionProtocol) -> Result<()> {
+    create_openvpn_config(
+        &vec![server.entry_ip],
+        protocol,
+        &vec![match protocol {
+            ConnectionProtocol::TCP => 443,
+            ConnectionProtocol::UDP => 1194,
+        } as usize],
+        &false,
+        None,
+        OVPN_FILE.as_path(),
+    )?;
+
+    let stdout = File::create(OVPN_LOG.as_path())?;
+    let stderr = stdout.try_clone()?;
+
+    let _cmd = Command::new("openvpn")
+        .arg("--config")
+        .arg(OVPN_FILE.as_os_str())
+        .arg("--auth-user-pass")
+        .arg(PASSFILE.as_os_str())
+        .arg("--dev")
+        .arg("proton0")
+        .arg("--dev-type")
+        .arg("tun")
+        .stdout(stdout)
+        .stderr(stderr)
+        .spawn()
+        .context("couldn't spawn openvpn")?;
+
+    Ok(())
+}
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -89,12 +126,27 @@ mod tests {
     fn test_create_ovpn_conf() {
         let out_path = Path::new("output.ovpn");
         let res = create_openvpn_config(
-            &vec![Ipv4Addr::new(1, 1, 1, 1)],
+            &vec![Ipv4Addr::new(108, 59, 0, 40)],
             &ConnectionProtocol::UDP,
             &vec![1134],
             &false,
             None,
             &out_path,
+        );
+        println!("{:?}", res);
+        assert!(res.is_ok());
+    }
+    #[test]
+    fn test_connect() {
+        let res = connect(
+            &Server {
+                entry_ip: Ipv4Addr::new(108, 59, 0, 40),
+                exit_ip: Ipv4Addr::new(0, 0, 0, 0),
+                domain: "".into(),
+                id: "".into(),
+                status: 1,
+            },
+            &ConnectionProtocol::UDP,
         );
         println!("{:?}", res);
         assert!(res.is_ok());
