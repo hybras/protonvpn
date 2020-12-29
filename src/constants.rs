@@ -31,6 +31,11 @@ lazy_static! {
         path.push("connect.ovpn");
         path
     };
+    pub(crate) static ref OVPN_LOG: PathBuf = {
+        let mut path = CONFIG_DIR.clone();
+        path.push("ovpn.log");
+        path
+    };
     pub(crate) static ref PASSFILE: PathBuf = {
         let mut path = CONFIG_DIR.clone();
         // Would be better as "ovpnpass", but alas compatibility
