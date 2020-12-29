@@ -47,19 +47,18 @@ fn create_openvpn_config(
                 let line = line.context("line unwrap")?;
                 // TODO String.split_once() once stabilized
                 let tokens = line.splitn(2, "/").collect::<Vec<_>>();
-                let ip_nm = if let [ip, nm] = tokens.as_slice() {
-                    IpNm {
+                let ip_nm = match tokens.as_slice() {
+                    [ip, nm] => IpNm {
                         ip: ip.parse()?,
                         nm: nm.parse()?,
-                    }
-                } else if let [ip] = tokens.as_slice() {
-                    IpNm {
+                    },
+                    [ip] => IpNm {
                         ip: ip.parse()?,
                         nm: "255.255.255.255".parse()?,
+                    },
+                    _ => {
+                        continue;
                     }
-                } else {
-                    // TODO log and/or return error
-                    continue;
                 };
                 ip_nm_pairs.push(ip_nm);
             }
