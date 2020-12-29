@@ -76,13 +76,17 @@ where
 /// Calls the protonvpn api endpoint `vpn/logicals`, and stores the result in the [server info file](#crate::vpn::constants::SERVER_INFO_FILE)
 fn pull_server_data(config: &mut Config) -> Result<()> {
     // If its been at least 15 mins since the last server check
-    if Utc::now() - config.metadata.last_api_pull > Duration::minutes(15) {
+    let now = Utc::now();
+    let mut servers_resp: ServersResponse;
+    if now - config.metadata.last_api_pull > Duration::minutes(15) {
         // Download the list of servers
         let response: ServersResponse = call_endpoint({
             config.user.api_domain.set_path("vpn/logicals");
             &config.user.api_domain
         })
         .context("failed to call vpn/logicals endpoint")?;
+
+        config.metadata.last_api_pull = now;
 
         // Write them to the file
         let server_info_file = BufWriter::new(File::open(SERVER_INFO_FILE.as_path())?);
