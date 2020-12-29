@@ -73,14 +73,14 @@ where
         .context("couldn't deserialize api response")
 }
 
-/// Calls the protonvpn api endpoint `vpn/logicals`, and stores the result in the [server info file](#crate::vpn::constants::SERVER_INFO_FILE)
-fn pull_server_data(config: &mut Config) -> Result<()> {
+/// Calls the protonvpn api endpoint `vpn/logicals`, and stores the result in the [server info file](#crate::vpn::constants::SERVER_INFO_FILE). Returns servers that are available to the user are currently up.
+fn get_servers(config: &mut Config) -> Result<Vec<LogicalServer>> {
     // If its been at least 15 mins since the last server check
     let now = Utc::now();
     let mut servers_resp: ServersResponse;
     if now - config.metadata.last_api_pull > Duration::minutes(15) {
         // Download the list of servers
-        let response: ServersResponse = call_endpoint({
+        servers_resp = call_endpoint({
             config.user.api_domain.set_path("vpn/logicals");
             &config.user.api_domain
         })
@@ -89,20 +89,16 @@ fn pull_server_data(config: &mut Config) -> Result<()> {
         config.metadata.last_api_pull = now;
 
         // Write them to the file
-        let server_info_file = BufWriter::new(File::open(SERVER_INFO_FILE.as_path())?);
-        serde_json::to_writer(server_info_file, &response)?;
+        let server_info_file = BufWriter::new(File::create(SERVER_INFO_FILE.as_path())?);
+        serde_json::to_writer(server_info_file, &servers_resp)?;
+    } else {
+        let server_info_file = BufReader::new(File::open(SERVER_INFO_FILE.as_path())?);
+        servers_resp = serde_json::from_reader(server_info_file)?;
     }
-    Ok(())
-}
-
-/// Returns servers that are available to the user and current are up
-fn get_servers(config: &Config) -> Result<Vec<LogicalServer>> {
-    let server_info_file = BufReader::new(File::open(SERVER_INFO_FILE.as_path())?);
-    let mut servers: ServersResponse = serde_json::from_reader(server_info_file)?;
-    servers
+    servers_resp
         .logical_servers
         .retain(|it| PlanTier::from(it.tier) <= config.user.tier && it.status == 1);
-    Ok(servers.logical_servers)
+    Ok(servers_resp.logical_servers)
 }
 
 /// Return the current public IP Address
