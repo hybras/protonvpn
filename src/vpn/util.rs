@@ -23,6 +23,7 @@ pub struct Config {
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub struct UserConfig {
     pub(crate) username: Option<String>,
+    pub(crate) password: Option<String>,
     pub(crate) tier: PlanTier,
     pub(crate) protocol: ConnectionProtocol,
     /// A recommended security setting that enables using Proton VPN's dns servers, or your own. In other words, don't use the dns servers from your operating system / internet service provider
@@ -36,11 +37,12 @@ pub struct UserConfig {
     pub(crate) api_domain: Url,
 }
 
-/// Creates unusable initial state. Must set the username field (is initially None)
+/// Creates unusable initial state. Must set the username  and password fields (is initially None)
 impl Default for UserConfig {
     fn default() -> Self {
         Self {
             username: None,
+            password: None,
             tier: PlanTier::Free,
             protocol: ConnectionProtocol::UDP,
             dns_leak_protection: true,
