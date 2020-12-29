@@ -6,13 +6,15 @@ use std::collections::HashMap;
 use std::env;
 use std::path::PathBuf;
 
+// TODO remove dependencies between lazy static vars (many of them depend on config dir)
 lazy_static! {
     pub(crate) static ref USER: String = env::var("USER").unwrap();
     pub(crate) static ref CONFIG_DIR: PathBuf = {
         let mut home = home_dir()
             .context("Couldn't locate user's home dir.")
             .unwrap();
-        home.push(".pvpn-cli");
+        home.push(".config");
+        home.push("protonvpn");
         home
     };
     pub(crate) static ref SERVER_INFO_FILE: PathBuf = {
@@ -30,9 +32,15 @@ lazy_static! {
         path.push("connect.ovpn");
         path
     };
+    pub(crate) static ref OVPN_LOG: PathBuf = {
+        let mut path = CONFIG_DIR.clone();
+        path.push("ovpn.log");
+        path
+    };
     pub(crate) static ref PASSFILE: PathBuf = {
         let mut path = CONFIG_DIR.clone();
-        path.push("pvpnpass");
+        // Would be better as "ovpnpass", but alas compatibility
+        path.push("ovpnpass");
         path
     };
     pub(crate) static ref COUNTRY_CODES: HashMap<String, String> = hmap! {
@@ -289,4 +297,5 @@ lazy_static! {
     };
 }
 
-pub const APP_NAME: &'static str = "protonvpn";
+pub const APP_NAME: &'static str = "protonvpn-rs";
+pub const VERSION: &'static str = structopt::clap::crate_version!();
