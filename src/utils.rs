@@ -40,15 +40,15 @@ struct LogicalServer {
 
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "PascalCase")]
-struct Server {
+pub(crate) struct Server {
     #[serde(rename = "EntryIP")]
-    entry_ip: Ipv4Addr,
+    pub(crate) entry_ip: Ipv4Addr,
     #[serde(rename = "ExitIP")]
-    exit_ip: Ipv4Addr,
-    domain: String,
+    pub(crate) exit_ip: Ipv4Addr,
+    pub(crate) domain: String,
     #[serde(rename = "ID")]
-    id: String,
-    status: i8,
+    pub(crate) id: String,
+    pub(crate) status: i8,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
