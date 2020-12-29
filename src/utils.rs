@@ -9,9 +9,9 @@ use chrono::{Duration, Utc};
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use url::Url;
 
-use crate::vpn::{
+use crate::{
     constants::{SERVER_INFO_FILE, VERSION},
-    util::{Config, PlanTier},
+    vpn::util::{Config, PlanTier},
 };
 
 #[derive(Serialize, Deserialize, Debug)]
