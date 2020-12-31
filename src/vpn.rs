@@ -3,7 +3,7 @@ use std::{
     io::{BufRead, BufReader, BufWriter, Write},
     net::Ipv4Addr,
     path::Path,
-    process::Command,
+    process::{Child, Command},
 };
 
 use anyhow::{Context, Result};
@@ -86,7 +86,7 @@ fn create_openvpn_config(
     Ok(())
 }
 
-fn connect(server: &Server, protocol: &ConnectionProtocol) -> Result<()> {
+fn connect(server: &Server, protocol: &ConnectionProtocol) -> Result<Child> {
     create_openvpn_config(
         &vec![server.entry_ip],
         protocol,
@@ -102,7 +102,7 @@ fn connect(server: &Server, protocol: &ConnectionProtocol) -> Result<()> {
     let stdout = File::create(OVPN_LOG.as_path())?;
     let stderr = stdout.try_clone()?;
 
-    let _cmd = Command::new("openvpn")
+    let cmd = Command::new("openvpn")
         .arg("--config")
         .arg(OVPN_FILE.as_os_str())
         .arg("--auth-user-pass")
@@ -116,7 +116,7 @@ fn connect(server: &Server, protocol: &ConnectionProtocol) -> Result<()> {
         .spawn()
         .context("couldn't spawn openvpn")?;
 
-    Ok(())
+    Ok(cmd)
 }
 #[cfg(test)]
 mod tests {
