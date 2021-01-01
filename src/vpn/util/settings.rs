@@ -100,18 +100,18 @@ impl<'a, R: BufRead, W: Write> Settings<'a, UserConfig, R, W> {
 		self.set_enum_field("Plan Tier", |t| t.tier, |u, t| u.tier = t)
 	}
 
-    pub(crate) fn set_protocol(&mut self) -> Result<ConnectionProtocol> {
-        self.set_enum_field("Connection Protocol", |u| u.protocol, |u, t| u.protocol = t)
-    }
+	pub(crate) fn set_protocol(&mut self) -> Result<ConnectionProtocol> {
+		self.set_enum_field("Connection Protocol", |u| u.protocol, |u, t| u.protocol = t)
+	}
 
-    pub(crate) fn set_password(&mut self) -> Result<Option<String>> {
-        let old = self.settings.password.take();
-        writeln!(self.stdout, "Enter password: ")?;
-        self.stdout.flush()?;
-        let pass = read_password_with_reader(Some(&mut self.stdin))?;
-        self.settings.password = Some(pass);
-        Ok(old)
-    }
+	pub(crate) fn set_password(&mut self) -> Result<Option<String>> {
+		let old = self.settings.password.take();
+		writeln!(self.stdout, "Enter password: ")?;
+		self.stdout.flush()?;
+		let pass = read_password_with_reader(Some(&mut self.stdin))?;
+		self.settings.password = Some(pass);
+		Ok(old)
+	}
 }
 
 #[cfg(test)]
@@ -134,37 +134,37 @@ mod tests {
 		}
 	}
 
-    #[test]
-    fn test_set_tier() {
-        let mut input = "2\n".as_bytes();
-        let mut output = vec![];
-        let mut settings = Settings::new(UserConfig::default(), &mut output, &mut input);
-        let old = settings.set_tier();
-        let user_config = settings.inner();
-        match old {
-            Ok(old) => {
-                assert_eq!(user_config.tier, PlanTier::Plus);
-                assert_eq!(old, PlanTier::Free);
-            }
-            Err(_) => assert!(false, "Setting Tier failed"),
-        }
-    }
-    #[test]
-    fn test_set_pass() -> Result<()> {
-        let mut input = "password\n".as_bytes();
-        let mut output = vec![];
-        let user = UserConfig::default();
-        let mut settings = Settings::new(user, &mut output, &mut input);
+	#[test]
+	fn test_set_tier() {
+		let mut input = "2\n".as_bytes();
+		let mut output = vec![];
+		let mut settings = Settings::new(UserConfig::default(), &mut output, &mut input);
+		let old = settings.set_tier();
+		let user_config = settings.inner();
+		match old {
+			Ok(old) => {
+				assert_eq!(user_config.tier, PlanTier::Plus);
+				assert_eq!(old, PlanTier::Free);
+			}
+			Err(_) => assert!(false, "Setting Tier failed"),
+		}
+	}
+	#[test]
+	fn test_set_pass() -> Result<()> {
+		let mut input = "password\n".as_bytes();
+		let mut output = vec![];
+		let user = UserConfig::default();
+		let mut settings = Settings::new(user, &mut output, &mut input);
 
-        let old = settings.set_password()?;
-        let user = settings.inner();
+		let old = settings.set_password()?;
+		let user = settings.inner();
 
-        assert_eq!(Some("password".to_string()), user.password);
+		assert_eq!(Some("password".to_string()), user.password);
 
-        let output = String::from_utf8(output)?;
-        assert_eq!(None, old);
+		let output = String::from_utf8(output)?;
+		assert_eq!(None, old);
 
-        assert_eq!("Enter password: \n", output);
-        Ok(())
-    }
+		assert_eq!("Enter password: \n", output);
+		Ok(())
+	}
 }
