@@ -2,7 +2,6 @@ use std::{
 	fs::File,
 	io::{BufRead, BufReader, BufWriter, Write},
 	net::Ipv4Addr,
-	path::Path,
 	process::{Child, Command},
 };
 
@@ -34,21 +33,23 @@ struct IpNm {
 	nm: Ipv4Addr,
 }
 
-fn create_openvpn_config(
+fn create_openvpn_config<R, W>(
 	servers: &Vec<Ipv4Addr>,
 	protocol: &ConnectionProtocol,
 	ports: &Vec<usize>,
 	split_tunnel: &bool,
-	split_tunnel_file: Option<&Path>,
-	output_file: &Path,
-) -> Result<()> {
+	split_tunnel_file: Option<R>,
+	output_file: &mut W,
+) -> Result<()>
+where
+	R: BufRead,
+	W: Write,
+{
 	let mut ip_nm_pairs = vec![];
 
 	if *split_tunnel {
-		if let Some(path) = split_tunnel_file {
-			let file = File::open(path).context("file open")?;
-			let file = BufReader::new(file);
-			for line in file.lines() {
+		if let Some(split_tunnel_file) = split_tunnel_file {
+			for line in split_tunnel_file.lines() {
 				let line = line.context("line unwrap")?;
 				// TODO String.split_once() once stabilized
 				let tokens = line.splitn(2, "/").collect::<Vec<_>>();
@@ -81,13 +82,13 @@ fn create_openvpn_config(
 	};
 
 	let rendered = ovpn_conf.render().context("render template")?;
-	let mut out = BufWriter::new(File::create(output_file)?);
+	let mut out = BufWriter::new(output_file);
 	write!(out, "{}", rendered).context("Failed write")?;
 	Ok(())
 }
 
 fn connect(server: &Server, protocol: &ConnectionProtocol) -> Result<Child> {
-	create_openvpn_config(
+	create_openvpn_config::<BufReader<File>, File>(
 		&vec![server.entry_ip],
 		protocol,
 		&vec![match protocol {
@@ -96,7 +97,7 @@ fn connect(server: &Server, protocol: &ConnectionProtocol) -> Result<Child> {
 		} as usize],
 		&false,
 		None,
-		OVPN_FILE.as_path(),
+		&mut File::create(OVPN_FILE.as_path())?,
 	)?;
 
 	let stdout = File::create(OVPN_LOG.as_path())?;
@@ -123,18 +124,18 @@ mod tests {
 	use super::*;
 
 	#[test]
-	fn test_create_ovpn_conf() {
-		let out_path = Path::new("output.ovpn");
-		let res = create_openvpn_config(
+	fn test_create_ovpn_conf() -> Result<()> {
+		let mut output = vec![];
+
+		let res = create_openvpn_config::<BufReader<File>, Vec<u8>>(
 			&vec![Ipv4Addr::new(108, 59, 0, 40)],
 			&ConnectionProtocol::UDP,
 			&vec![1134],
 			&false,
 			None,
-			&out_path,
-		);
-		println!("{:?}", res);
-		assert!(res.is_ok());
+			&mut output,
+		)?;
+		Ok(res)
 	}
 	#[test]
 	fn test_connect() {
