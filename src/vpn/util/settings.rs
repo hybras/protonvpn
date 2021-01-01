@@ -1,6 +1,6 @@
 use super::*;
 use anyhow::Result;
-use rpassword::{read_password, read_password_with_reader};
+use rpassword::read_password_with_reader;
 use std::io::{BufRead, Write};
 use strum::IntoEnumIterator;
 
