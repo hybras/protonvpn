@@ -29,9 +29,12 @@ where
             user_settings.set_username()?;
         }
         1 => {
-            user_settings.set_tier()?;
+            user_settings.set_password()?;
         }
         2 => {
+            user_settings.set_tier()?;
+        }
+        3 => {
             user_settings.set_protocol()?;
         }
         _ => {}
@@ -47,6 +50,7 @@ where
 {
     let mut user_settings = Settings::new(config.clone(), w, r);
     user_settings.set_username()?;
+    user_settings.set_password()?;
     user_settings.set_tier()?;
     user_settings.set_protocol()?;
     *config = user_settings.inner();
@@ -77,11 +81,12 @@ mod tests {
 
     #[test]
     fn test_initialize() -> Result<()> {
-        let mut stdin = Cursor::new("hybras\n2\n1\n");
+        let mut stdin = Cursor::new("hybras\nshitty password\n2\n1\n");
         let mut stdout = Cursor::new(vec![]);
 
         let expected = UserConfig {
             username: Some("hybras".into()),
+            password: Some("shitty password".into()),
             tier: crate::vpn::util::PlanTier::Plus,
             protocol: crate::vpn::util::ConnectionProtocol::TCP,
             ..Default::default()
