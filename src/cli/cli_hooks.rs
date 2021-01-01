@@ -1,4 +1,4 @@
-use crate::vpn::util::{settings::*, UserConfig};
+use crate::vpn::util::{settings::Settings, UserConfig};
 use anyhow::{Context, Result};
 use std::io::{BufRead, Write};
 
