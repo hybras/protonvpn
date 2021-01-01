@@ -37,7 +37,7 @@ pub struct UserConfig {
     pub(crate) api_domain: Url,
 }
 
-/// Creates unusable initial state. Must set the username  and password fields (is initially None)
+/// Creates unusable initial state. Must set the username and password fields (is initially None)
 impl Default for UserConfig {
     fn default() -> Self {
         Self {
