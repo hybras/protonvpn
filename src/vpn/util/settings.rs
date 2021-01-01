@@ -1,5 +1,6 @@
 use super::*;
 use anyhow::Result;
+use rpassword::{read_password, read_password_with_reader};
 use std::io::{BufRead, Write};
 use strum::IntoEnumIterator;
 
@@ -110,6 +111,7 @@ impl<'a, R: BufRead, W: Write> Settings<'a, UserConfig, R, W> {
         let pass = read_password_with_reader(Some(&mut self.stdin))?;
         self.settings.password = Some(pass);
         Ok(old)
+    }
 }
 
 #[cfg(test)]
@@ -146,5 +148,23 @@ mod tests {
             }
             Err(_) => assert!(false, "Setting Tier failed"),
         }
+    }
+    #[test]
+    fn test_set_pass() -> Result<()> {
+        let mut input = "password\n".as_bytes();
+        let mut output = vec![];
+        let user = UserConfig::default();
+        let mut settings = Settings::new(user, &mut output, &mut input);
+
+        let old = settings.set_password()?;
+        let user = settings.inner();
+
+        assert_eq!(Some("password".to_string()), user.password);
+
+        let output = String::from_utf8(output)?;
+        assert_eq!(None, old);
+
+        assert_eq!("Enter password: \n", output);
+        Ok(())
     }
 }
