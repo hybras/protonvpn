@@ -102,6 +102,14 @@ impl<'a, R: BufRead, W: Write> Settings<'a, UserConfig, R, W> {
     pub(crate) fn set_protocol(&mut self) -> Result<ConnectionProtocol> {
         self.set_enum_field("Connection Protocol", |u| u.protocol, |u, t| u.protocol = t)
     }
+
+    pub(crate) fn set_password(&mut self) -> Result<Option<String>> {
+        let old = self.settings.password.take();
+        writeln!(self.stdout, "Enter password: ")?;
+        self.stdout.flush()?;
+        let pass = read_password_with_reader(Some(&mut self.stdin))?;
+        self.settings.password = Some(pass);
+        Ok(old)
 }
 
 #[cfg(test)]
