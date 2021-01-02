@@ -87,7 +87,13 @@ where
 	Ok(())
 }
 
-fn connect(server: &Server, protocol: &ConnectionProtocol) -> Result<Child> {
+fn connect_helper(
+	server: &Server,
+	protocol: &ConnectionProtocol,
+	passfile: &Path,
+	config: &Path,
+	log: &Path,
+) -> Result<Child> {
 	create_openvpn_config::<BufReader<File>, File>(
 		&vec![server.entry_ip],
 		protocol,
@@ -97,17 +103,17 @@ fn connect(server: &Server, protocol: &ConnectionProtocol) -> Result<Child> {
 		} as usize],
 		&false,
 		None,
-		&mut File::create(OVPN_FILE.as_path())?,
+		&mut File::create(config)?,
 	)?;
 
-	let stdout = File::create(OVPN_LOG.as_path())?;
+	let stdout = File::create(log)?;
 	let stderr = stdout.try_clone()?;
 
 	let cmd = Command::new("openvpn")
 		.arg("--config")
-		.arg(OVPN_FILE.as_os_str())
+		.arg(config)
 		.arg("--auth-user-pass")
-		.arg(PASSFILE.as_os_str())
+		.arg(passfile)
 		.arg("--dev")
 		.arg("proton0")
 		.arg("--dev-type")
