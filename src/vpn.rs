@@ -3,15 +3,16 @@ use std::{
 	io::{BufRead, BufReader, BufWriter, Write},
 	net::Ipv4Addr,
 	path::Path,
-	process::Command,
+	process::{Child, Command},
 };
 
 use anyhow::{Context, Result};
 use askama::Template;
-use util::ConnectionProtocol;
+use tempfile::{NamedTempFile, TempPath};
+use util::{ConnectionProtocol, UserConfig};
 
 use crate::{
-	constants::{OVPN_FILE, OVPN_LOG, PASSFILE},
+	constants::{OVPN_FILE, OVPN_LOG},
 	utils::Server,
 };
 
@@ -34,21 +35,23 @@ struct IpNm {
 	nm: Ipv4Addr,
 }
 
-fn create_openvpn_config(
+fn create_openvpn_config<R, W>(
 	servers: &Vec<Ipv4Addr>,
 	protocol: &ConnectionProtocol,
 	ports: &Vec<usize>,
 	split_tunnel: &bool,
-	split_tunnel_file: Option<&Path>,
-	output_file: &Path,
-) -> Result<()> {
+	split_tunnel_file: Option<R>,
+	output_file: &mut W,
+) -> Result<()>
+where
+	R: BufRead,
+	W: Write,
+{
 	let mut ip_nm_pairs = vec![];
 
 	if *split_tunnel {
-		if let Some(path) = split_tunnel_file {
-			let file = File::open(path).context("file open")?;
-			let file = BufReader::new(file);
-			for line in file.lines() {
+		if let Some(split_tunnel_file) = split_tunnel_file {
+			for line in split_tunnel_file.lines() {
 				let line = line.context("line unwrap")?;
 				// TODO String.split_once() once stabilized
 				let tokens = line.splitn(2, "/").collect::<Vec<_>>();
@@ -81,13 +84,19 @@ fn create_openvpn_config(
 	};
 
 	let rendered = ovpn_conf.render().context("render template")?;
-	let mut out = BufWriter::new(File::create(output_file)?);
+	let mut out = BufWriter::new(output_file);
 	write!(out, "{}", rendered).context("Failed write")?;
 	Ok(())
 }
 
-fn connect(server: &Server, protocol: &ConnectionProtocol) -> Result<()> {
-	create_openvpn_config(
+fn connect_helper(
+	server: &Server,
+	protocol: &ConnectionProtocol,
+	passfile: &Path,
+	config: &Path,
+	log: &Path,
+) -> Result<Child> {
+	create_openvpn_config::<BufReader<File>, File>(
 		&vec![server.entry_ip],
 		protocol,
 		&vec![match protocol {
@@ -96,17 +105,17 @@ fn connect(server: &Server, protocol: &ConnectionProtocol) -> Result<()> {
 		} as usize],
 		&false,
 		None,
-		OVPN_FILE.as_path(),
+		&mut File::create(config)?,
 	)?;
 
-	let stdout = File::create(OVPN_LOG.as_path())?;
+	let stdout = File::create(log)?;
 	let stderr = stdout.try_clone()?;
 
-	let _cmd = Command::new("openvpn")
+	let cmd = Command::new("openvpn")
 		.arg("--config")
-		.arg(OVPN_FILE.as_os_str())
+		.arg(config)
 		.arg("--auth-user-pass")
-		.arg(PASSFILE.as_os_str())
+		.arg(passfile)
 		.arg("--dev")
 		.arg("proton0")
 		.arg("--dev-type")
@@ -116,39 +125,74 @@ fn connect(server: &Server, protocol: &ConnectionProtocol) -> Result<()> {
 		.spawn()
 		.context("couldn't spawn openvpn")?;
 
-	Ok(())
+	Ok(cmd)
 }
+
+fn connect(server: &Server, protocol: &ConnectionProtocol, config: &UserConfig) -> Result<Child> {
+	let pass_path = create_passfile(config)?;
+	connect_helper(server, protocol, &pass_path, &OVPN_FILE, &OVPN_LOG)
+}
+
+fn create_passfile(config: &UserConfig) -> Result<TempPath> {
+	let f = NamedTempFile::new()?;
+	let mut buf = BufWriter::new(f);
+	let client_suffix = "plc";
+
+	write!(
+		buf,
+		"{}+{}\n{}\n",
+		config.username, client_suffix, config.password
+	)?;
+
+	let (f, path) = buf.into_inner()?.into_parts();
+	let mut perms = f.metadata()?.permissions();
+	perms.set_readonly(true);
+	f.set_permissions(perms)?;
+
+	Ok(path)
+}
+
 #[cfg(test)]
 mod tests {
 	use super::*;
 
 	#[test]
-	fn test_create_ovpn_conf() {
-		let out_path = Path::new("output.ovpn");
-		let res = create_openvpn_config(
+	fn test_create_ovpn_conf() -> Result<()> {
+		let mut output = vec![];
+
+		let res = create_openvpn_config::<BufReader<File>, Vec<u8>>(
 			&vec![Ipv4Addr::new(108, 59, 0, 40)],
 			&ConnectionProtocol::UDP,
 			&vec![1134],
 			&false,
 			None,
-			&out_path,
-		);
-		println!("{:?}", res);
-		assert!(res.is_ok());
+			&mut output,
+		)?;
+		Ok(res)
 	}
-	#[test]
-	fn test_connect() {
-		let res = connect(
-			&Server {
-				entry_ip: Ipv4Addr::new(108, 59, 0, 40),
-				exit_ip: Ipv4Addr::new(0, 0, 0, 0),
-				domain: "".into(),
-				id: "".into(),
-				status: 1,
-			},
-			&ConnectionProtocol::UDP,
-		);
-		println!("{:?}", res);
-		assert!(res.is_ok());
-	}
+	// #[test]
+	// fn test_connect() -> Result<()> {
+	// 	use std::io::Read;
+
+	// 	let mut res = connect(
+	// 		&Server {
+	// 			entry_ip: Ipv4Addr::new(108, 59, 0, 40),
+	// 			exit_ip: Ipv4Addr::new(0, 0, 0, 0),
+	// 			domain: "".into(),
+	// 			id: "".into(),
+	// 			status: 1,
+	// 		},
+	// 		&ConnectionProtocol::UDP,
+	// 		UserConfig::new(username, password),
+	// 	)?;
+
+	// 	let exit = res.wait()?;
+	// 	let out = res.stdout.as_mut().unwrap();
+	// 	let mut output = vec![];
+	// 	(out as &mut dyn Read).read_to_end(&mut output)?;
+	// 	let output = String::from_utf8(output)?;
+	// 	println!("{}", output);
+	// 	assert!(exit.success());
+	// 	Ok(())
+	// }
 }

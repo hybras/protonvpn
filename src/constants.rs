@@ -1,5 +1,5 @@
 use anyhow::Context;
-use dirs::home_dir;
+use directories::ProjectDirs;
 use lazy_static::lazy_static;
 use literally::hmap;
 use std::collections::HashMap;
@@ -9,14 +9,11 @@ use std::path::PathBuf;
 // TODO remove dependencies between lazy static vars (many of them depend on config dir)
 lazy_static! {
 	pub(crate) static ref USER: String = env::var("USER").unwrap();
-	pub(crate) static ref CONFIG_DIR: PathBuf = {
-		let mut home = home_dir()
-			.context("Couldn't locate user's home dir.")
+	pub(crate) static ref PROJECT_DIR: ProjectDirs =
+		ProjectDirs::from("io.github.hybras", "", APP_NAME)
+			.context("Failed to find project dirs")
 			.unwrap();
-		home.push(".config");
-		home.push("protonvpn");
-		home
-	};
+	pub(crate) static ref CONFIG_DIR: PathBuf = PROJECT_DIR.config_dir().to_path_buf();
 	pub(crate) static ref SERVER_INFO_FILE: PathBuf = {
 		let mut path = CONFIG_DIR.clone();
 		path.push("serverinfo.json");
@@ -35,12 +32,6 @@ lazy_static! {
 	pub(crate) static ref OVPN_LOG: PathBuf = {
 		let mut path = CONFIG_DIR.clone();
 		path.push("ovpn.log");
-		path
-	};
-	pub(crate) static ref PASSFILE: PathBuf = {
-		let mut path = CONFIG_DIR.clone();
-		// Would be better as "ovpnpass", but alas compatibility
-		path.push("ovpnpass");
 		path
 	};
 	pub(crate) static ref COUNTRY_CODES: HashMap<String, String> = hmap! {

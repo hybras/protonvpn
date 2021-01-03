@@ -1,4 +1,4 @@
-use crate::vpn::util::{settings::*, UserConfig};
+use crate::vpn::util::{settings::Settings, UserConfig};
 use anyhow::{Context, Result};
 use std::io::{BufRead, Write};
 
@@ -39,7 +39,7 @@ where
 		}
 		_ => {}
 	}
-	*config = user_settings.inner();
+	*config = user_settings.into_inner();
 	Ok(())
 }
 
@@ -53,7 +53,7 @@ where
 	user_settings.set_password()?;
 	user_settings.set_tier()?;
 	user_settings.set_protocol()?;
-	*config = user_settings.inner();
+	*config = user_settings.into_inner();
 	Ok(())
 }
 
@@ -67,10 +67,7 @@ mod tests {
 		let mut stdin = Cursor::new("0\nhybras\n");
 		let mut stdout = Cursor::new(vec![]);
 
-		let expected = UserConfig {
-			username: Some("hybras".into()),
-			..Default::default()
-		};
+		let expected = UserConfig::new("hybras".into(), "".into());
 		let mut config = UserConfig::default();
 
 		let _ = configure(&mut config, &mut stdin, &mut stdout)
@@ -85,8 +82,8 @@ mod tests {
 		let mut stdout = Cursor::new(vec![]);
 
 		let expected = UserConfig {
-			username: Some("hybras".into()),
-			password: Some("shitty password".into()),
+			username: "hybras".into(),
+			password: "shitty password".into(),
 			tier: crate::vpn::util::PlanTier::Plus,
 			protocol: crate::vpn::util::ConnectionProtocol::TCP,
 			..Default::default()
