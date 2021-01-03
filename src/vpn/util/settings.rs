@@ -1,7 +1,10 @@
 use super::*;
 use anyhow::Result;
 use rpassword::read_password_with_reader;
-use std::io::{BufRead, Write};
+use std::{
+	io::{BufRead, Write},
+	mem::replace,
+};
 use strum::IntoEnumIterator;
 
 /// Encapsulation for mutating ProtonVPN Settings.
@@ -24,12 +27,7 @@ impl<'a, S, R: BufRead, W: Write> Settings<'a, S, R, W> {
 			stdin,
 		}
 	}
-	fn set_enum_field<T, N>(
-		&mut self,
-		name: N,
-		getter: impl Fn(&S) -> T,
-		setter: impl Fn(&mut S, T) -> (),
-	) -> Result<T>
+	fn set_enum_field<T, N>(&mut self, name: N, getter: impl Fn(&mut S) -> &mut T) -> Result<T>
 	where
 		T: Display + Copy + IntoEnumIterator,
 		N: AsRef<str>,
@@ -39,7 +37,7 @@ impl<'a, S, R: BufRead, W: Write> Settings<'a, S, R, W> {
 		for (idx, option) in options.iter().enumerate() {
 			writeln!(&mut self.stdout, "\t{}) {}", idx, option.to_string())?;
 		}
-		let old_value = getter(&mut self.settings);
+
 		let mut new_value = String::new();
 		let new_value = loop {
 			write!(self.stdout, "Enter {}: ", name.as_ref())?;
@@ -54,16 +52,12 @@ impl<'a, S, R: BufRead, W: Write> Settings<'a, S, R, W> {
 				continue;
 			}
 		};
-		setter(&mut self.settings, options[new_value].clone());
+
+		let old_value = replace(getter(&mut self.settings), options[new_value]);
 		Ok(old_value)
 	}
 
-	fn set_value_field<T, N>(
-		&mut self,
-		name: N,
-		getter: impl Fn(&S) -> T,
-		setter: impl Fn(&mut S, T) -> (),
-	) -> Result<T>
+	fn set_value_field<T, N>(&mut self, name: N, getter: impl Fn(&mut S) -> &mut T) -> Result<T>
 	where
 		T: Display + FromStr,
 		N: AsRef<str>,
@@ -71,11 +65,10 @@ impl<'a, S, R: BufRead, W: Write> Settings<'a, S, R, W> {
 	{
 		write!(self.stdout, "Enter your {}: ", name.as_ref())?;
 		self.stdout.flush()?;
-		let old_value = getter(&self.settings);
 		let mut new_value = String::new();
 		self.stdin.read_line(&mut new_value)?;
 		let new = new_value.trim().parse::<T>()?;
-		setter(&mut self.settings, new);
+		let old_value = replace(getter(&mut self.settings), new);
 		Ok(old_value)
 	}
 
@@ -88,28 +81,23 @@ impl<'a, S, R: BufRead, W: Write> Settings<'a, S, R, W> {
 impl<'a, R: BufRead, W: Write> Settings<'a, UserConfig, R, W> {
 	/// Set the ProtonVPN Username
 	pub(crate) fn set_username(&mut self) -> Result<String> {
-		self.set_value_field(
-			"username",
-			|u| u.username.clone().unwrap_or("".into()),
-			|u, t| u.username = Some(t),
-		)
+		self.set_value_field("username", |u| &mut u.username)
 	}
 
 	/// Set the users ProtonVPN Plan.
 	pub(crate) fn set_tier(&mut self) -> Result<PlanTier> {
-		self.set_enum_field("Plan Tier", |t| t.tier, |u, t| u.tier = t)
+		self.set_enum_field("Plan Tier", |t| &mut t.tier)
 	}
 
 	pub(crate) fn set_protocol(&mut self) -> Result<ConnectionProtocol> {
-		self.set_enum_field("Connection Protocol", |u| u.protocol, |u, t| u.protocol = t)
+		self.set_enum_field("Connection Protocol", |u| &mut u.protocol)
 	}
 
-	pub(crate) fn set_password(&mut self) -> Result<Option<String>> {
-		let old = self.settings.password.take();
+	pub(crate) fn set_password(&mut self) -> Result<String> {
 		writeln!(self.stdout, "Enter password: ")?;
 		self.stdout.flush()?;
 		let pass = read_password_with_reader(Some(&mut self.stdin))?;
-		self.settings.password = Some(pass);
+		let old = replace(&mut self.settings.password, pass);
 		Ok(old)
 	}
 }
@@ -127,7 +115,7 @@ mod tests {
 		let user_config = settings.inner();
 		match old {
 			Ok(old) => {
-				assert_eq!(user_config.username, Some("hello".into()));
+				assert_eq!(user_config.username, "hello");
 				assert_eq!(old, "");
 			}
 			Err(_) => assert!(false, "Setting username failed"),
@@ -159,10 +147,10 @@ mod tests {
 		let old = settings.set_password()?;
 		let user = settings.inner();
 
-		assert_eq!(Some("password".to_string()), user.password);
+		assert_eq!("password", user.password);
 
 		let output = String::from_utf8(output)?;
-		assert_eq!(None, old);
+		assert_eq!("", old);
 
 		assert_eq!("Enter password: \n", output);
 		Ok(())
