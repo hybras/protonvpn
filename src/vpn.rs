@@ -141,9 +141,7 @@ fn create_passfile(config: &UserConfig) -> Result<TempPath> {
 	write!(
 		buf,
 		"{}+{}\n{}\n",
-		config.username.as_deref().unwrap(),
-		client_suffix,
-		config.password.as_deref().unwrap()
+		config.username, client_suffix, config.password
 	)?;
 
 	let (f, path) = buf.into_inner()?.into_parts();
