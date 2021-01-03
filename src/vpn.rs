@@ -2,15 +2,17 @@ use std::{
 	fs::File,
 	io::{BufRead, BufReader, BufWriter, Write},
 	net::Ipv4Addr,
+	path::Path,
 	process::{Child, Command},
 };
 
 use anyhow::{Context, Result};
 use askama::Template;
-use util::ConnectionProtocol;
+use tempfile::{NamedTempFile, TempPath};
+use util::{ConnectionProtocol, UserConfig};
 
 use crate::{
-	constants::{OVPN_FILE, OVPN_LOG, PASSFILE},
+	constants::{OVPN_FILE, OVPN_LOG},
 	utils::Server,
 };
 
@@ -125,6 +127,33 @@ fn connect_helper(
 
 	Ok(cmd)
 }
+
+fn connect(server: &Server, protocol: &ConnectionProtocol, config: &UserConfig) -> Result<Child> {
+	let pass_path = create_passfile(config)?;
+	connect_helper(server, protocol, &pass_path, &OVPN_FILE, &OVPN_LOG)
+}
+
+fn create_passfile(config: &UserConfig) -> Result<TempPath> {
+	let f = NamedTempFile::new()?;
+	let mut buf = BufWriter::new(f);
+	let client_suffix = "plc";
+
+	write!(
+		buf,
+		"{}+{}\n{}\n",
+		config.username.as_deref().unwrap(),
+		client_suffix,
+		config.password.as_deref().unwrap()
+	)?;
+
+	let (f, path) = buf.into_inner()?.into_parts();
+	let mut perms = f.metadata()?.permissions();
+	perms.set_readonly(true);
+	f.set_permissions(perms)?;
+
+	Ok(path)
+}
+
 #[cfg(test)]
 mod tests {
 	use super::*;
