@@ -38,7 +38,6 @@ lazy_static! {
 	};
 	pub(crate) static ref PASSFILE: PathBuf = {
 		let mut path = CONFIG_DIR.clone();
-		// Would be better as "ovpnpass", but alas compatibility
 		path.push("ovpnpass");
 		path
 	};
