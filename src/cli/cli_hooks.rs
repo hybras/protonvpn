@@ -39,7 +39,7 @@ where
 		}
 		_ => {}
 	}
-	*config = user_settings.inner();
+	*config = user_settings.into_inner();
 	Ok(())
 }
 
@@ -53,7 +53,7 @@ where
 	user_settings.set_password()?;
 	user_settings.set_tier()?;
 	user_settings.set_protocol()?;
-	*config = user_settings.inner();
+	*config = user_settings.into_inner();
 	Ok(())
 }
 

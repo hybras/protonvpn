@@ -72,7 +72,7 @@ impl<'a, S, R: BufRead, W: Write> Settings<'a, S, R, W> {
 		Ok(old_value)
 	}
 
-	pub(crate) fn inner(self) -> S {
+	pub(crate) fn into_inner(self) -> S {
 		self.settings
 	}
 }
@@ -112,7 +112,7 @@ mod tests {
 		let mut output = vec![];
 		let mut settings = Settings::new(UserConfig::default(), &mut output, &mut input);
 		let old = settings.set_username();
-		let user_config = settings.inner();
+		let user_config = settings.into_inner();
 		match old {
 			Ok(old) => {
 				assert_eq!(user_config.username, "hello");
@@ -128,7 +128,7 @@ mod tests {
 		let mut output = vec![];
 		let mut settings = Settings::new(UserConfig::default(), &mut output, &mut input);
 		let old = settings.set_tier();
-		let user_config = settings.inner();
+		let user_config = settings.into_inner();
 		match old {
 			Ok(old) => {
 				assert_eq!(user_config.tier, PlanTier::Plus);
@@ -145,7 +145,7 @@ mod tests {
 		let mut settings = Settings::new(user, &mut output, &mut input);
 
 		let old = settings.set_password()?;
-		let user = settings.inner();
+		let user = settings.into_inner();
 
 		assert_eq!("password", user.password);
 
