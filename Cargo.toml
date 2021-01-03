@@ -16,7 +16,7 @@ exclude = ["/.vscode"]
 [dependencies]
 structopt = "0.3"
 lazy_static = "1.4"
-dirs = "3.0"
+directories = "3.0"
 literally = "0.1"
 url = {version = "2.2.0", features = ["serde"]}
 serde = "1.0"
