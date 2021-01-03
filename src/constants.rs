@@ -1,5 +1,5 @@
 use anyhow::Context;
-use dirs::home_dir;
+use dirs::config_dir;
 use lazy_static::lazy_static;
 use literally::hmap;
 use std::collections::HashMap;
@@ -10,10 +10,9 @@ use std::path::PathBuf;
 lazy_static! {
 	pub(crate) static ref USER: String = env::var("USER").unwrap();
 	pub(crate) static ref CONFIG_DIR: PathBuf = {
-		let mut home = home_dir()
-			.context("Couldn't locate user's home dir.")
+		let mut home = config_dir()
+			.context("Couldn't locate user's config dir.")
 			.unwrap();
-		home.push(".config");
 		home.push("protonvpn");
 		home
 	};
