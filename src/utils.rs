@@ -7,11 +7,12 @@ use std::{
 use anyhow::{Context, Result};
 use chrono::{Duration, Utc};
 
+use directories::ProjectDirs;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use url::Url;
 
 use crate::{
-	constants::{SERVER_INFO_FILE, VERSION},
+	constants::VERSION,
 	vpn::util::{Config, PlanTier},
 };
 
@@ -75,7 +76,14 @@ where
 }
 
 /// Calls the protonvpn api endpoint `vpn/logicals`, and stores the result in the [server info file](#crate::vpn::constants::SERVER_INFO_FILE). Returns servers that are available to the user are currently up.
-pub fn get_servers(config: &mut Config) -> Result<Vec<LogicalServer>> {
+pub fn get_servers(config: &mut Config, pdir: &ProjectDirs) -> Result<Vec<LogicalServer>> {
+	let file_path = {
+		let server_info_file = "serverinfo.json";
+		let mut path = pdir.config_dir().to_path_buf();
+		path.push(server_info_file);
+		path
+	};
+
 	// If its been at least 15 mins since the last server check
 	let now = Utc::now();
 	let mut servers_resp: ServersResponse;
@@ -87,13 +95,13 @@ pub fn get_servers(config: &mut Config) -> Result<Vec<LogicalServer>> {
 		})
 		.context("failed to call vpn/logicals endpoint")?;
 
-		config.metadata.last_api_pull = now;
-
 		// Write them to the file
-		let server_info_file = BufWriter::new(File::create(SERVER_INFO_FILE.as_path())?);
+		let server_info_file = BufWriter::new(File::create(file_path)?);
 		serde_json::to_writer(server_info_file, &servers_resp)?;
+
+		config.metadata.last_api_pull = now;
 	} else {
-		let server_info_file = BufReader::new(File::open(SERVER_INFO_FILE.as_path())?);
+		let server_info_file = BufReader::new(File::open(file_path)?);
 		servers_resp = serde_json::from_reader(server_info_file)?;
 	}
 	servers_resp
