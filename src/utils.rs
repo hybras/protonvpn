@@ -6,17 +6,18 @@ use std::{
 
 use anyhow::{Context, Result};
 use chrono::{Duration, Utc};
+use directories::ProjectDirs;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use url::Url;
 
 use crate::{
-	constants::{SERVER_INFO_FILE, VERSION},
+	constants::{APP_NAME, SERVER_INFO_FILE, VERSION},
 	vpn::util::{Config, PlanTier},
 };
 
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "PascalCase")]
-struct ServersResponse {
+pub struct ServersResponse {
 	/// No idea what this field is
 	code: i32,
 	logical_servers: Vec<LogicalServer>,
@@ -24,35 +25,35 @@ struct ServersResponse {
 
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "PascalCase")]
-struct LogicalServer {
-	name: String,
-	entry_country: String,
-	exit_country: String,
-	domain: String,
-	tier: u8,
+pub struct LogicalServer {
+	pub name: String,
+	pub entry_country: String,
+	pub exit_country: String,
+	pub domain: String,
+	pub tier: u8,
 	#[serde(rename = "ID")]
-	id: String,
-	status: i8,
-	servers: Vec<Server>,
-	load: i16,
-	score: f64,
+	pub id: String,
+	pub status: i8,
+	pub servers: Vec<Server>,
+	pub load: i16,
+	pub score: f64,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "PascalCase")]
-pub(crate) struct Server {
+pub struct Server {
 	#[serde(rename = "EntryIP")]
-	pub(crate) entry_ip: Ipv4Addr,
+	pub entry_ip: Ipv4Addr,
 	#[serde(rename = "ExitIP")]
-	pub(crate) exit_ip: Ipv4Addr,
-	pub(crate) domain: String,
+	pub exit_ip: Ipv4Addr,
+	pub domain: String,
 	#[serde(rename = "ID")]
-	pub(crate) id: String,
-	pub(crate) status: i8,
+	pub id: String,
+	pub status: i8,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-struct IpInfo {
+pub struct IpInfo {
 	#[serde(rename = "IP")]
 	ip: Ipv4Addr,
 	#[serde(rename = "ISP")]
@@ -74,7 +75,7 @@ where
 }
 
 /// Calls the protonvpn api endpoint `vpn/logicals`, and stores the result in the [server info file](#crate::vpn::constants::SERVER_INFO_FILE). Returns servers that are available to the user are currently up.
-fn get_servers(config: &mut Config) -> Result<Vec<LogicalServer>> {
+pub fn get_servers(config: &mut Config) -> Result<Vec<LogicalServer>> {
 	// If its been at least 15 mins since the last server check
 	let now = Utc::now();
 	let mut servers_resp: ServersResponse;
@@ -102,11 +103,17 @@ fn get_servers(config: &mut Config) -> Result<Vec<LogicalServer>> {
 }
 
 /// Return the current public IP Address
-fn ip_info(config: &Config) -> Result<IpInfo> {
+pub fn ip_info(config: &Config) -> Result<IpInfo> {
 	let mut url = config.user.api_domain.clone();
 	url.set_path("/vpn/location");
 	let resp = call_endpoint::<IpInfo>(&url)?;
 	Ok(resp)
+}
+
+pub fn project_dirs() -> ProjectDirs {
+	ProjectDirs::from("io.github.hybras", "", APP_NAME)
+		.context("Couldn't find project dirs")
+		.unwrap()
 }
 
 #[cfg(test)]

@@ -10,7 +10,7 @@ use CliOptions::*;
 
 pub mod cli;
 pub mod constants;
-mod utils;
+pub(crate) mod utils;
 pub mod vpn;
 
 pub fn main<R, W>(
