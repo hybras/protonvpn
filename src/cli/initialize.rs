@@ -43,7 +43,7 @@ mod tests {
 	use std::io::Cursor;
 
 	#[test]
-	fn test_initialize() -> Result<()> {
+	fn test_ask_for_settings() -> Result<()> {
 		let mut stdin = Cursor::new("hybras\nshitty password\n2\n1\n");
 		let mut stdout = Cursor::new(vec![]);
 
@@ -56,7 +56,7 @@ mod tests {
 		};
 		let mut config = UserConfig::default();
 
-		let _ = initialize(&mut config, &mut stdin, &mut stdout)
+		let _ = ask_for_settings(&mut config, &mut stdin, &mut stdout)
 			.context("Failed to interact with user to get config")?;
 		assert_eq!(expected, config);
 		Ok(())
