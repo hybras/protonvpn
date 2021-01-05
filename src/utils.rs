@@ -110,12 +110,6 @@ pub fn ip_info(config: &Config) -> Result<IpInfo> {
 	Ok(resp)
 }
 
-pub fn project_dirs() -> ProjectDirs {
-	ProjectDirs::from("io.github.hybras", "", APP_NAME)
-		.context("Couldn't find project dirs")
-		.unwrap()
-}
-
 #[cfg(test)]
 mod tests {
 

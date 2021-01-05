@@ -1,5 +1,9 @@
-use crate::vpn::util::{settings::Settings, UserConfig};
+use crate::{
+	constants::APP_NAME,
+	vpn::util::{settings::Settings, UserConfig},
+};
 use anyhow::{Context, Result};
+use directories::ProjectDirs;
 use std::io::{BufRead, Write};
 
 pub fn initialize<R, W>(config: &mut UserConfig, r: &mut R, w: &mut W) -> Result<()>
@@ -14,6 +18,12 @@ where
 	user_settings.set_protocol()?;
 	*config = user_settings.into_inner();
 	Ok(())
+}
+
+pub fn project_dirs() -> ProjectDirs {
+	ProjectDirs::from("io.github.hybras", "", APP_NAME)
+		.context("Couldn't find project dirs")
+		.unwrap()
 }
 
 #[cfg(test)]
