@@ -8,5 +8,6 @@
         "protonmail",
         "protonvpn",
         "resolvconf"
-    ]
+    ],
+    "explorer.sortOrder": "mixed"
 }
