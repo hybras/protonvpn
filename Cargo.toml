@@ -14,7 +14,8 @@ exclude = ["/.vscode"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-structopt = "0.3"
+structopt = {version = "0.3", features = ["paw"] }
+paw = "1.0"
 lazy_static = "1.4"
 directories = "3.0"
 literally = "0.1"
