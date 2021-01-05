@@ -1,5 +1,5 @@
 use crate::{
-	cli::{configure, initialize, CliOptions},
+	cli::{configure, initialize, initialize::project_dirs, CliOptions},
 	constants::APP_NAME,
 	vpn::util::Config,
 };
@@ -23,10 +23,12 @@ where
 	R: BufRead,
 	W: Write,
 {
+	let pdir = project_dirs();
+
 	if let Ok(mut config) = config_res {
 		match opt {
 			Init => {
-				initialize(&mut config.user, &mut r, &mut w)?;
+				initialize(&mut config.user, &pdir, &mut r, &mut w)?;
 				confy::store(APP_NAME, config.user).context("Couldn't store your configuration")?;
 			}
 			Connect {
@@ -45,7 +47,7 @@ where
 		};
 	} else {
 		if let Init = opt {
-			initialize(&mut Default::default(), &mut r, &mut w)?;
+			initialize(&mut Default::default(), &pdir, &mut r, &mut w)?;
 		} else {
 			writeln!(
 				&mut w,
