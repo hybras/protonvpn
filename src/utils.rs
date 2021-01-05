@@ -6,12 +6,12 @@ use std::{
 
 use anyhow::{Context, Result};
 use chrono::{Duration, Utc};
-use directories::ProjectDirs;
+
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use url::Url;
 
 use crate::{
-	constants::{APP_NAME, SERVER_INFO_FILE, VERSION},
+	constants::{SERVER_INFO_FILE, VERSION},
 	vpn::util::{Config, PlanTier},
 };
 
