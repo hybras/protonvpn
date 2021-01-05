@@ -6,7 +6,17 @@ use anyhow::{Context, Result};
 use directories::ProjectDirs;
 use std::io::{BufRead, Write};
 
+/// Asks for every setting and creates the app's config directories.
 pub fn initialize<R, W>(config: &mut UserConfig, r: &mut R, w: &mut W) -> Result<()>
+where
+	R: BufRead,
+	W: Write,
+{
+	ask_for_settings(config, r, w)?;
+	Ok(())
+}
+
+fn ask_for_settings<R, W>(config: &mut UserConfig, r: &mut R, w: &mut W) -> Result<()>
 where
 	R: BufRead,
 	W: Write,
@@ -17,10 +27,11 @@ where
 	user_settings.set_tier()?;
 	user_settings.set_protocol()?;
 	*config = user_settings.into_inner();
+
 	Ok(())
 }
 
-pub fn project_dirs() -> ProjectDirs {
+fn project_dirs() -> ProjectDirs {
 	ProjectDirs::from("io.github.hybras", "", APP_NAME)
 		.context("Couldn't find project dirs")
 		.unwrap()
