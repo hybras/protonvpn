@@ -2,6 +2,8 @@ use crate::vpn::util::ConnectionProtocol;
 use structopt::StructOpt;
 
 pub mod cli_hooks;
+pub mod configure;
+pub mod initialize;
 
 /// An enum for all the cli's subcommands
 ///
