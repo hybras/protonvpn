@@ -4,15 +4,24 @@ use crate::{
 };
 use anyhow::{Context, Result};
 use directories::ProjectDirs;
-use std::io::{BufRead, Write};
+use std::{
+	fs::create_dir,
+	io::{BufRead, Write},
+};
 
 /// Asks for every setting and creates the app's config directories.
-pub fn initialize<R, W>(config: &mut UserConfig, r: &mut R, w: &mut W) -> Result<()>
+pub fn initialize<R, W>(
+	config: &mut UserConfig,
+	pdir: &ProjectDirs,
+	r: &mut R,
+	w: &mut W,
+) -> Result<()>
 where
 	R: BufRead,
 	W: Write,
 {
 	ask_for_settings(config, r, w)?;
+	create_config_dir(&pdir)?;
 	Ok(())
 }
 
@@ -29,6 +38,10 @@ where
 	*config = user_settings.into_inner();
 
 	Ok(())
+}
+
+fn create_config_dir(pdir: &ProjectDirs) -> Result<()> {
+	create_dir(pdir.config_dir()).context("Failed to create app config dir")
 }
 
 fn project_dirs() -> ProjectDirs {
