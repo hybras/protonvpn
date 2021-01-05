@@ -1,5 +1,5 @@
 use crate::{
-	cli::{cli_hooks::*, CliOptions},
+	cli::{configure, initialize, CliOptions},
 	constants::APP_NAME,
 	vpn::util::Config,
 };

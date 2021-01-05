@@ -4,6 +4,9 @@ use structopt::StructOpt;
 pub mod configure;
 pub mod initialize;
 
+pub use configure::configure;
+pub use initialize::initialize;
+
 /// An enum for all the cli's subcommands
 ///
 /// The enum options correspond one to one with ALL features of the cli (planned or otherwise). Read the docs on each option to learn what they do.
