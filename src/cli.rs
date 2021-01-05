@@ -15,14 +15,7 @@ pub enum CliOptions {
 	/// Initialize a ProtonVPN profile.
 	Init,
 	/// Connect to a ProtonVPN server.
-	Connect {
-		/// See ConnectOptions for more info
-		#[structopt(subcommand, name = "mode")]
-		connection_option: ConnectOptions,
-		/// Determine the protocol (UDP or TCP).
-		#[structopt(long, short)]
-		protocol: Option<ConnectionProtocol>,
-	},
+	Connect(Connect),
 	/// Reconnect the currently active session or connect to the last connected server.
 	Reconnect,
 	/// Disconnect the current session.
@@ -35,6 +28,16 @@ pub enum CliOptions {
 	Refresh,
 	/// Print some example commands.
 	Examples,
+}
+
+#[derive(StructOpt, Debug)]
+pub struct Connect {
+	/// See ConnectOptions for more info
+	#[structopt(subcommand, name = "mode")]
+	connection_option: ConnectOptions,
+	/// Determine the protocol (UDP or TCP).
+	#[structopt(long, short)]
+	protocol: Option<ConnectionProtocol>,
 }
 
 #[derive(Debug, StructOpt)]

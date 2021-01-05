@@ -31,10 +31,7 @@ where
 				initialize(&mut config.user, &pdir, &mut r, &mut w)?;
 				confy::store(APP_NAME, config.user).context("Couldn't store your configuration")?;
 			}
-			Connect {
-				connection_option: _,
-				protocol: _,
-			} => {}
+			Connect(flags) => {}
 			Reconnect => {}
 			Disconnect => {}
 			Status => {}
