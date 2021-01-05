@@ -14,11 +14,6 @@ lazy_static! {
 			.context("Failed to find project dirs")
 			.unwrap();
 	pub(crate) static ref CONFIG_DIR: PathBuf = PROJECT_DIR.config_dir().to_path_buf();
-	pub(crate) static ref SERVER_INFO_FILE: PathBuf = {
-		let mut path = CONFIG_DIR.clone();
-		path.push("serverinfo.json");
-		path
-	};
 	pub(crate) static ref SPLIT_TUNNEL_FILE: PathBuf = {
 		let mut path = CONFIG_DIR.clone();
 		path.push("split_tunnel.txt");
