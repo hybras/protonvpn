@@ -40,7 +40,7 @@ where
 	Ok(())
 }
 
-fn create_config_dir(pdir: &ProjectDirs) -> Result<()> {
+pub fn create_config_dir(pdir: &ProjectDirs) -> Result<()> {
 	create_dir(pdir.config_dir()).context("Failed to create app config dir")
 }
 
