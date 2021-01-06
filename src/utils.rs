@@ -78,12 +78,7 @@ where
 
 /// Calls the protonvpn api endpoint `vpn/logicals`, and stores the result in the [server info file](#crate::vpn::constants::SERVER_INFO_FILE). Returns servers that are available to the user are currently up.
 pub fn get_servers(config: &mut Config, pdir: &ProjectDirs) -> Result<Vec<LogicalServer>> {
-	let file_path = {
-		let server_info_file = "serverinfo.json";
-		let mut path = pdir.config_dir().to_path_buf();
-		path.push(server_info_file);
-		path
-	};
+	let file_path = config_path(pdir, "servers.json");
 
 	// If its been at least 15 mins since the last server check
 	let now = Utc::now();
