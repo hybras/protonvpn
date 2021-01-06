@@ -2,6 +2,7 @@ use std::{
 	fs::File,
 	io::{BufReader, BufWriter},
 	net::Ipv4Addr,
+	path::PathBuf,
 };
 
 use anyhow::{Context, Result};
@@ -116,6 +117,15 @@ pub fn ip_info(config: &Config) -> Result<IpInfo> {
 	url.set_path("/vpn/location");
 	let resp = call_endpoint::<IpInfo>(&url)?;
 	Ok(resp)
+}
+
+pub fn config_path<S>(pdir: &ProjectDirs, filename: S) -> PathBuf
+where
+	S: AsRef<str>,
+{
+	let mut config_path = pdir.config_dir().to_path_buf();
+	config_path.push(filename.as_ref());
+	config_path
 }
 
 #[cfg(test)]
