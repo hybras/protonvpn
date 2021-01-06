@@ -2,6 +2,7 @@ use crate::vpn::util::ConnectionProtocol;
 use structopt::StructOpt;
 
 pub mod configure;
+pub mod connect;
 pub mod initialize;
 
 pub use configure::configure;
