@@ -11,10 +11,7 @@ use askama::Template;
 use tempfile::{NamedTempFile, TempPath};
 use util::{ConnectionProtocol, UserConfig};
 
-use crate::{
-	constants::{OVPN_FILE, OVPN_LOG},
-	utils::Server,
-};
+use crate::utils::LogicalServer;
 
 pub mod util;
 
@@ -90,14 +87,14 @@ where
 }
 
 fn connect_helper(
-	server: &Server,
+	server: &LogicalServer,
 	protocol: &ConnectionProtocol,
 	passfile: &Path,
 	config: &Path,
 	log: &Path,
 ) -> Result<Child> {
 	create_openvpn_config::<BufReader<File>, File>(
-		&vec![server.entry_ip],
+		&server.servers.iter().map(|s| s.entry_ip).collect(),
 		protocol,
 		&vec![match protocol {
 			ConnectionProtocol::TCP => 443,
@@ -128,9 +125,15 @@ fn connect_helper(
 	Ok(cmd)
 }
 
-fn connect(server: &Server, protocol: &ConnectionProtocol, config: &UserConfig) -> Result<Child> {
-	let pass_path = create_passfile(config)?;
-	connect_helper(server, protocol, &pass_path, &OVPN_FILE, &OVPN_LOG)
+pub fn connect(
+	server: &LogicalServer,
+	protocol: &ConnectionProtocol,
+	user_config: &UserConfig,
+	config_path: &Path,
+	log_path: &Path,
+) -> Result<Child> {
+	let pass_path = create_passfile(user_config)?;
+	connect_helper(server, protocol, &pass_path, &config_path, &log_path)
 }
 
 fn create_passfile(config: &UserConfig) -> Result<TempPath> {
