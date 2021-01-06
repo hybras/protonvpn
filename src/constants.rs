@@ -1,34 +1,9 @@
-use anyhow::Context;
-use directories::ProjectDirs;
 use lazy_static::lazy_static;
 use literally::hmap;
 use std::collections::HashMap;
 use std::env;
-use std::path::PathBuf;
 
-// TODO remove dependencies between lazy static vars (many of them depend on config dir)
 lazy_static! {
-	pub(crate) static ref USER: String = env::var("USER").unwrap();
-	pub(crate) static ref PROJECT_DIR: ProjectDirs =
-		ProjectDirs::from("io.github.hybras", "", APP_NAME)
-			.context("Failed to find project dirs")
-			.unwrap();
-	pub(crate) static ref CONFIG_DIR: PathBuf = PROJECT_DIR.config_dir().to_path_buf();
-	pub(crate) static ref SPLIT_TUNNEL_FILE: PathBuf = {
-		let mut path = CONFIG_DIR.clone();
-		path.push("split_tunnel.txt");
-		path
-	};
-	pub(crate) static ref OVPN_FILE: PathBuf = {
-		let mut path = CONFIG_DIR.clone();
-		path.push("connect.ovpn");
-		path
-	};
-	pub(crate) static ref OVPN_LOG: PathBuf = {
-		let mut path = CONFIG_DIR.clone();
-		path.push("ovpn.log");
-		path
-	};
 	pub(crate) static ref COUNTRY_CODES: HashMap<String, String> = hmap! {
 		"BD" => "Bangladesh",
 		"BE" => "Belgium",
@@ -283,5 +258,9 @@ lazy_static! {
 	};
 }
 
-pub const APP_NAME: &'static str = "protonvpn-rs";
-pub const VERSION: &'static str = structopt::clap::crate_version!();
+pub const APP_NAME: &str = "protonvpn-rs";
+pub const VERSION: &str = structopt::clap::crate_version!();
+
+pub const SPLIT_TUNNEL_FILE: &str = "split_tunnel.txt";
+pub const OVPN_FILE: &str = "connect.ovpn";
+pub const OVPN_LOG: &str = "ovpn.log";
