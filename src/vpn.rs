@@ -3,7 +3,7 @@ use std::{
 	io::{BufRead, BufReader, BufWriter, Write},
 	net::Ipv4Addr,
 	path::Path,
-	process::{Child, Command},
+	process::{Child, Command, Stdio},
 };
 
 use anyhow::{Context, Result};
@@ -112,11 +112,12 @@ fn connect_helper(
 		.arg("--config")
 		.arg(config)
 		.arg("--auth-user-pass")
-		.arg(passfile)
+		.arg(&passfile)
 		.arg("--dev")
 		.arg("proton0")
 		.arg("--dev-type")
 		.arg("tun")
+		.stdin(Stdio::null())
 		.stdout(stdout)
 		.stderr(stderr)
 		.spawn()
@@ -147,16 +148,13 @@ fn create_passfile(config: &UserConfig) -> Result<TempPath> {
 		config.username, client_suffix, config.password
 	)?;
 
-	let (f, path) = buf.into_inner()?.into_parts();
-	let mut perms = f.metadata()?.permissions();
-	perms.set_readonly(true);
-	f.set_permissions(perms)?;
-
-	Ok(path)
+	Ok(buf.into_inner()?.into_temp_path())
 }
 
 #[cfg(test)]
 mod tests {
+	use std::fs::read;
+
 	use super::*;
 
 	#[test]
@@ -198,4 +196,19 @@ mod tests {
 	// 	assert!(exit.success());
 	// 	Ok(())
 	// }
+
+	#[test]
+	fn test_passfile() -> Result<()> {
+		let user = "user";
+		let pass = "pass";
+		let path = create_passfile(&UserConfig::new(user.into(), pass.into()))?;
+
+		let buf = read(&path)?;
+		let s = String::from_utf8(buf)?;
+		assert_eq!(s, format!("{}+plc\n{}\n", user, pass));
+
+		let output = Command::new("/usr/bin/cat").arg(&path).output()?;
+		assert!(output.status.success());
+		Ok(())
+	}
 }
