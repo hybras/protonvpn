@@ -1,5 +1,3 @@
-use std::process::Child;
-
 use crate::{
 	constants::{OVPN_FILE, OVPN_LOG},
 	utils::{config_path, get_servers},

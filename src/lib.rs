@@ -31,7 +31,7 @@ where
 				initialize(&mut config.user, &pdir, &mut r, &mut w)?;
 				confy::store(APP_NAME, config.user).context("Couldn't store your configuration")?;
 			}
-			Connect(flags) => {}
+			Connect(_flags) => {}
 			Reconnect => {}
 			Disconnect => {}
 			Status => {}
