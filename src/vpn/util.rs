@@ -4,12 +4,14 @@ use serde::{Deserialize, Serialize};
 use std::{fmt::Display, net::Ipv4Addr, str::FromStr};
 use strum_macros::{Display, EnumIter};
 use url::Url;
+
+use crate::utils::LogicalServer;
 pub mod settings;
 
 /// Holds all application state
 ///
 /// Holds current connection information and settings for the current (only) user
-#[derive(Serialize, Deserialize, Debug, PartialEq, Default)]
+#[derive(Serialize, Deserialize, Debug, Default)]
 pub struct Config {
 	/// Actual config info
 	pub user: UserConfig,
@@ -129,7 +131,7 @@ impl Default for MetaData {
 	}
 }
 
-#[derive(Serialize, Deserialize, Debug, PartialEq)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct ConnectionInfo {
 	pub(crate) server: String,
 	pub(crate) protocol: ConnectionProtocol,
