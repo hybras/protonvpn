@@ -48,8 +48,8 @@ mod tests {
 
 		let mut config = Config {
 			user: UserConfig::new(
-				"C_QP9Na4pt9PJgVWa3AWlM87".into(),
-				"9Egs36LPwZum6vPwIZSUHYxw".into(),
+				"".into(), // TODO username
+				"".into(), // TODO password
 			),
 			connection_info: None,
 			metadata: MetaData {
