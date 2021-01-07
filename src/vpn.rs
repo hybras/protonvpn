@@ -32,9 +32,9 @@ struct IpNm {
 	nm: Ipv4Addr,
 }
 
-struct VpnConnection {
+pub struct VpnConnection {
 	openvpn_process: Child,
-	passfile: TempPath
+	passfile: TempPath,
 }
 
 fn create_openvpn_config<R, W>(
@@ -94,10 +94,10 @@ where
 fn connect_helper(
 	server: &LogicalServer,
 	protocol: &ConnectionProtocol,
-	passfile: &Path,
+	passfile: TempPath,
 	config: &Path,
 	log: &Path,
-) -> Result<Child> {
+) -> Result<VpnConnection> {
 	create_openvpn_config::<BufReader<File>, File>(
 		&server.servers.iter().map(|s| s.entry_ip).collect(),
 		protocol,
@@ -128,7 +128,12 @@ fn connect_helper(
 		.spawn()
 		.context("couldn't spawn openvpn")?;
 
-	Ok(cmd)
+	let connection = VpnConnection {
+		openvpn_process: cmd,
+		passfile,
+	};
+
+	Ok(connection)
 }
 
 pub fn connect(
@@ -137,9 +142,9 @@ pub fn connect(
 	user_config: &UserConfig,
 	config_path: &Path,
 	log_path: &Path,
-) -> Result<Child> {
+) -> Result<VpnConnection> {
 	let pass_path = create_passfile(user_config)?;
-	connect_helper(server, protocol, &pass_path, &config_path, &log_path)
+	connect_helper(server, protocol, pass_path, &config_path, &log_path)
 }
 
 fn create_passfile(config: &UserConfig) -> Result<TempPath> {
