@@ -6,7 +6,6 @@ use crate::{
 use anyhow::{Context, Result};
 use directories::ProjectDirs;
 use vpn::{connect as vpn_connect, util::ConnectionProtocol};
-
 /// Connect to the server specified on the command line
 fn server<S>(
 	server: S,
@@ -31,8 +30,6 @@ where
 #[cfg(test)]
 mod tests {
 
-	use std::{thread::sleep, time::Duration};
-
 	use chrono::Utc;
 	use vpn::util::UserConfig;
 
@@ -56,14 +53,13 @@ mod tests {
 			},
 		};
 
-		let _connection = server(
+		let mut connection = server(
 			String::from("US-FREE#1"),
 			&ConnectionProtocol::UDP,
 			&mut config,
 			&pdir,
 		)?;
-		sleep(Duration::from_secs(10));
-		drop(_connection);
-		Ok(())
+		let res = connection.openvpn_process.wait()?;
+		Ok(assert!(!res.success()))
 	}
 }

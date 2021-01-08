@@ -33,8 +33,8 @@ struct IpNm {
 }
 
 pub struct VpnConnection {
-	openvpn_process: Child,
-	passfile: TempPath,
+	pub(crate) openvpn_process: Child,
+	pub(crate) passfile: TempPath,
 }
 
 fn create_openvpn_config<R, W>(
