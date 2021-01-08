@@ -1,6 +1,7 @@
 use crate::{
-	cli::{configure, initialize, initialize::project_dirs, CliOptions},
+	cli::{configure, initialize, CliOptions},
 	constants::APP_NAME,
+	utils::project_dirs,
 	vpn::util::Config,
 };
 use anyhow::{Context, Result};

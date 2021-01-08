@@ -40,14 +40,8 @@ where
 	Ok(())
 }
 
-pub fn create_config_dir(pdir: &ProjectDirs) -> Result<()> {
+fn create_config_dir(pdir: &ProjectDirs) -> Result<()> {
 	create_dir(pdir.config_dir()).context("Failed to create app config dir")
-}
-
-pub fn project_dirs() -> ProjectDirs {
-	ProjectDirs::from("io.github.hybras", "", APP_NAME)
-		.context("Couldn't find project dirs")
-		.unwrap()
 }
 
 #[cfg(test)]

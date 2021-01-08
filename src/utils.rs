@@ -12,10 +12,7 @@ use directories::ProjectDirs;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use url::Url;
 
-use crate::{
-	constants::VERSION,
-	vpn::util::{Config, PlanTier},
-};
+use crate::{constants::{APP_NAME, VERSION}, vpn::util::{Config, PlanTier}};
 
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "PascalCase")]
@@ -121,6 +118,12 @@ where
 	let mut config_path = pdir.config_dir().to_path_buf();
 	config_path.push(filename.as_ref());
 	config_path
+}
+
+pub fn project_dirs() -> ProjectDirs {
+	ProjectDirs::from("io.github.hybras", "", APP_NAME)
+		.context("Couldn't find project dirs")
+		.unwrap()
 }
 
 #[cfg(test)]

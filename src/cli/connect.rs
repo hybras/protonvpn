@@ -34,7 +34,7 @@ mod tests {
 	use vpn::util::UserConfig;
 
 	use super::*;
-	use crate::cli::initialize::project_dirs;
+	use crate::utils::project_dirs;
 	use crate::vpn::util::MetaData;
 
 	#[test]
