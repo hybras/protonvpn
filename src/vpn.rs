@@ -13,6 +13,7 @@ use util::{ConnectionProtocol, UserConfig};
 
 use crate::utils::LogicalServer;
 
+pub mod settings;
 pub mod util;
 
 #[derive(Template)] // this will generate the code...

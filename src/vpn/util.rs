@@ -1,11 +1,9 @@
 use anyhow::{Context, Result};
 use chrono::prelude::*;
 use serde::{Deserialize, Serialize};
-use std::{fmt::Display, net::Ipv4Addr, str::FromStr};
+use std::{net::Ipv4Addr, str::FromStr};
 use strum_macros::{Display, EnumIter};
 use url::Url;
-
-pub mod settings;
 
 /// Holds all application state
 ///
