@@ -6,6 +6,7 @@ pub mod connect;
 pub mod initialize;
 
 pub use configure::configure;
+pub use connect::connect;
 pub use initialize::initialize;
 
 /// An enum for all the cli's subcommands

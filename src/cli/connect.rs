@@ -1,11 +1,42 @@
+use super::ConnectOptions::*;
 use crate::{
 	constants::{OVPN_FILE, OVPN_LOG},
 	utils::{config_path, get_servers},
 	vpn::{self, util::Config, VpnConnection},
 };
-use anyhow::{Context, Result};
+use anyhow::{anyhow, Context, Result};
 use directories::ProjectDirs;
 use vpn::{connect as vpn_connect, util::ConnectionProtocol};
+
+use super::Connect;
+
+pub fn connect(
+	flags: &Connect,
+	mut config: &mut Config,
+	pdir: &ProjectDirs,
+) -> Result<VpnConnection> {
+	let Connect {
+		connection_option,
+		protocol,
+	} = flags;
+
+	if let Server {
+		server: server_name,
+	} = connection_option
+	{
+		server(
+			server_name,
+			&protocol.unwrap_or(config.user.protocol),
+			&mut config,
+			pdir,
+		)
+	} else {
+		Err(anyhow!(
+			"Operations besides connecting to a server not currently supported"
+		))
+	}
+}
+
 /// Connect to the server specified on the command line
 fn server<S>(
 	server: S,
@@ -42,10 +73,7 @@ mod tests {
 		let pdir = project_dirs();
 
 		let mut config = Config {
-			user: UserConfig::new(
-				"".into(), // TODO username
-				"".into(), // TODO password
-			),
+			user: UserConfig::new("".into(), "".into()),
 			connection_info: None,
 			metadata: MetaData {
 				resolvconf_hash: None,

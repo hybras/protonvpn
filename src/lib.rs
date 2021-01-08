@@ -1,5 +1,5 @@
 use crate::{
-	cli::{configure, initialize, CliOptions},
+	cli::{configure, connect, initialize, CliOptions},
 	constants::APP_NAME,
 	utils::project_dirs,
 	vpn::util::Config,
@@ -32,7 +32,9 @@ where
 				initialize(&mut config.user, &pdir, &mut r, &mut w)?;
 				confy::store(APP_NAME, config.user).context("Couldn't store your configuration")?;
 			}
-			Connect(_flags) => {}
+			Connect(flags) => {
+				let _connection = connect(&flags, &mut config, &pdir)?;
+			}
 			Reconnect => {}
 			Disconnect => {}
 			Status => {}
