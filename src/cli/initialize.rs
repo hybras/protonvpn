@@ -1,7 +1,4 @@
-use crate::{
-	constants::APP_NAME,
-	vpn::util::{settings::Settings, UserConfig},
-};
+use crate::vpn::{settings::Settings, util::UserConfig};
 use anyhow::{Context, Result};
 use directories::ProjectDirs;
 use std::{
