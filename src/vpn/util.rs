@@ -5,7 +5,6 @@ use std::{fmt::Display, net::Ipv4Addr, str::FromStr};
 use strum_macros::{Display, EnumIter};
 use url::Url;
 
-use crate::utils::LogicalServer;
 pub mod settings;
 
 /// Holds all application state
@@ -133,6 +132,7 @@ impl Default for MetaData {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ConnectionInfo {
+	// TODO Change this to server id?
 	pub(crate) server: String,
 	pub(crate) protocol: ConnectionProtocol,
 	pub(crate) dns_server: String,
