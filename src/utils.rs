@@ -12,7 +12,10 @@ use directories::ProjectDirs;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use url::Url;
 
-use crate::{constants::{APP_NAME, VERSION}, vpn::util::{Config, PlanTier}};
+use crate::{
+	constants::{APP_NAME, VERSION},
+	vpn::util::{Config, PlanTier},
+};
 
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "PascalCase")]
