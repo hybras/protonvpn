@@ -1,6 +1,6 @@
 [package]
 name = "protonvpn"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["hybras <24651269+hybras@users.noreply.github.com>"]
 edition = "2018"
 license = "MIT OR Apache-2.0"
@@ -8,8 +8,8 @@ description = "protonvpn cli in rust"
 homepage = "https://github.com/hybras/protonvpn"
 repository = "https://github.com/hybras/protonvpn"
 readme = "README.md"
-categories = ["command-line-utilities"]
-exclude = ["/.vscode"]
+categories = ["command-line-utilities", "vpn"]
+exclude = ["/.vscode", ".github"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
