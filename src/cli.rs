@@ -50,7 +50,7 @@ pub enum ConnectOptions {
 	Fastest,
 	/// Determine the country for fastest connect.
 	CountryCode { 
-		/// 2 letter country code, like US or IN. See [COUNTRY_CODES](crate::constants::COUNTRY_CODES) 
+		/// 2 letter country code, like US or IN. See [COUNTRY_CODES](static@crate::constants::COUNTRY_CODES) 
 		cc: String },
 	/// Connect to the fastest Secure-Core server.
 	SecureCore,

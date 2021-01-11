@@ -37,7 +37,7 @@ pub struct UserConfig {
 }
 
 impl UserConfig {
-	/// Constructor: All other params assume default values. Use the setters in [settings] for mutation
+	/// Constructor: All other params assume default values. Use the setters in [super::settings] for mutation
 	pub fn new(username: String, password: String) -> Self {
 		Self {
 			username,
@@ -120,7 +120,7 @@ impl FromStr for ConnectionProtocol {
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub struct MetaData {
 	pub(crate) resolvconf_hash: Option<String>,
-	/// Time of the last call to the `/vpn/logicals` api endpoint. See [get_servers()](crate::utils::get_server).
+	/// Time of the last call to the `/vpn/logicals` api endpoint. See [get_servers()](crate::utils::get_servers).
 	///
 	/// If config could not be found, this defaults to 0 milliseconds, as a sort of Time::MIN
 	pub(crate) last_api_pull: DateTime<Utc>,
