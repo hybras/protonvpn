@@ -10,6 +10,7 @@ use vpn::{connect as vpn_connect, util::ConnectionProtocol};
 
 use super::Connect;
 
+/// Conncts to a server based on which variant of ConnectOptions Connect::connection_option is.
 pub fn connect(
 	flags: &Connect,
 	mut config: &mut Config,

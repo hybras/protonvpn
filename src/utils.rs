@@ -17,6 +17,7 @@ use crate::{
 	vpn::util::{Config, PlanTier},
 };
 
+/// This struct is for the `/vpn/logicals` API call. See [get_server()].
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "PascalCase")]
 pub struct ServersResponse {
@@ -76,7 +77,7 @@ where
 		.context("couldn't deserialize api response")
 }
 
-/// Calls the protonvpn api endpoint `vpn/logicals`, and stores the result in the [server info file](#crate::vpn::constants::SERVER_INFO_FILE). Returns servers that are available to the user are currently up.
+/// Calls the protonvpn api endpoint `/vpn/logicals`, and stores the result in the [server info file](#crate::vpn::constants::SERVER_INFO_FILE). Returns servers that are available to the user are currently up.
 pub fn get_servers(config: &mut Config, pdir: &ProjectDirs) -> Result<Vec<LogicalServer>> {
 	let file_path = config_path(pdir, "servers.json");
 

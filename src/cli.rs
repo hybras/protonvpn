@@ -32,6 +32,7 @@ pub enum CliOptions {
 	Examples,
 }
 
+/// The struct contains the different variants of the connect subcommand (takes many subcommands as well.)
 #[derive(StructOpt, Debug)]
 pub struct Connect {
 	/// See ConnectOptions for more info
@@ -42,12 +43,15 @@ pub struct Connect {
 	protocol: Option<ConnectionProtocol>,
 }
 
+/// Each variant of this enum corresponds to a subcommand of the connect subcommand. Each variant has a corresponding submodule that handles that variant.
 #[derive(Debug, StructOpt)]
 pub enum ConnectOptions {
 	/// Select the fastest ProtonVPN server.
 	Fastest,
 	/// Determine the country for fastest connect.
-	CountryCode { cc: String },
+	CountryCode { 
+		/// 2 letter country code, like US or IN. See [COUNTRY_CODES](crate::constants::COUNTRY_CODES) 
+		cc: String },
 	/// Connect to the fastest Secure-Core server.
 	SecureCore,
 	/// Connect to the fastest torrent server.
@@ -57,5 +61,12 @@ pub enum ConnectOptions {
 	/// Select a random ProtonVPN server.
 	Random,
 	/// Select a specific server (must follow the name format)
-	Server { server: String },
+	Server {
+		/// Country code. Needs to match one the following python regexes
+		/// - Short: `^((\w\w)(-|#)?(\d{1,3})-?(TOR)?)$`
+		///    - Example: UK-03/HK#5-Tor, for normal and tor servers
+		/// - Long: `^(((\w\w)(-|#)?([A-Z]{2}|FREE))(-|#)?(\d{1,3})-?(TOR)?)$`
+		///    - Example: IS-DE-01, for Secure-Core/Free/US Servers
+		server: String,
+	},
 }

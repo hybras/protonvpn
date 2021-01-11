@@ -37,6 +37,7 @@ pub struct UserConfig {
 }
 
 impl UserConfig {
+	/// Constructor: All other params assume default values. Use the setters in [settings] for mutation
 	pub fn new(username: String, password: String) -> Self {
 		Self {
 			username,
@@ -89,10 +90,12 @@ impl From<u8> for PlanTier {
 	}
 }
 
-/// Order here is used to indicate default option: UDP
+/// The connection protocol to use for vpn connections. The default is UDP
 #[derive(Debug, Serialize, Deserialize, PartialEq, Copy, Clone, EnumIter, Display)]
 pub enum ConnectionProtocol {
+	/// Default variant, [User Datagram Protocol](https://www.cloudflare.com/learning/ddos/glossary/user-datagram-protocol-udp/)
 	UDP,
+	/// [Transmission Control Protocol](https://www.cloudflare.com/learning/ddos/glossary/tcp-ip/)
 	TCP,
 }
 
@@ -113,9 +116,13 @@ impl FromStr for ConnectionProtocol {
 	}
 }
 
+/// Random extra info used by the application.
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub struct MetaData {
 	pub(crate) resolvconf_hash: Option<String>,
+	/// Time of the last call to the `/vpn/logicals` api endpoint. See [get_servers()](crate::utils::get_server).
+	///
+	/// If config could not be found, this defaults to 0 milliseconds, as a sort of Time::MIN
 	pub(crate) last_api_pull: DateTime<Utc>,
 }
 
@@ -128,6 +135,7 @@ impl Default for MetaData {
 	}
 }
 
+/// Information about the current vpn connection. 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ConnectionInfo {
 	// TODO Change this to server id?

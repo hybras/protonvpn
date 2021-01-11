@@ -13,7 +13,12 @@ use util::{ConnectionProtocol, UserConfig};
 
 use crate::utils::LogicalServer;
 
+/// This module contains a wrapper type, [settings::Settings]. It has methods for creating setters, as well as an impl containing special setters for when it is UserConfig being wrapped.
+///
+/// This module is misplaced, it should be at the top level or under `crate::cli`
 pub mod settings;
+
+/// This module declares all the structs that store application state.
 pub mod util;
 
 #[derive(Template)] // this will generate the code...
@@ -33,6 +38,7 @@ struct IpNm {
 	nm: Ipv4Addr,
 }
 
+/// Stores information about the current connection. Its purpose to prevent the passfile path from being dropped (upon drop the corresponding file is unlinked/deleted)
 pub struct VpnConnection {
 	pub(crate) openvpn_process: Child,
 	pub(crate) passfile: TempPath,
@@ -137,6 +143,7 @@ fn connect_helper(
 	Ok(connection)
 }
 
+/// This function wraps the helper, first creating the password tempfile and passing it in.
 pub fn connect(
 	server: &LogicalServer,
 	protocol: &ConnectionProtocol,

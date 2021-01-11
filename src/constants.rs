@@ -4,6 +4,7 @@ use std::collections::HashMap;
 use std::env;
 
 lazy_static! {
+	/// Map from string country code to string country name 
 	pub(crate) static ref COUNTRY_CODES: HashMap<String, String> = hmap! {
 		"BD" => "Bangladesh",
 		"BE" => "Belgium",
@@ -258,9 +259,17 @@ lazy_static! {
 	};
 }
 
+/// App name. Used to denote the binary's config directory (for dirs and confy), and then making api requests. 
 pub const APP_NAME: &str = "protonvpn-rs";
+
+/// App version, taken using a clap macro. Used when making api requests
 pub const VERSION: &str = structopt::clap::crate_version!();
 
+/// Filename for split tunnel ip masks. This file should be read/written by the app.  
 pub const SPLIT_TUNNEL_FILE: &str = "split_tunnel.txt";
+
+/// Name of the openvpn config file. Eventually we want to replace this with tempfiles. 
 pub const OVPN_FILE: &str = "connect.ovpn";
+
+/// Openvpn logs. Used for debugging
 pub const OVPN_LOG: &str = "ovpn.log";
