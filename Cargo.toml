@@ -21,6 +21,8 @@ paw = "1.0"
 
 # Interactive Cli
 rpassword = "5.0"
+dialoguer = "0.7"
+console = "0.14"
 
 # Application
 lazy_static = "1.4"
