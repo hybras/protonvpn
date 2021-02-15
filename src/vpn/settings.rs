@@ -1,6 +1,7 @@
 use super::util::{ConnectionProtocol, PlanTier, UserConfig};
 use anyhow::Result;
-use rpassword::read_password_with_reader;
+use dialoguer::theme::ColorfulTheme;
+
 use std::{
 	fmt::Display,
 	io::{BufRead, Write},
@@ -29,31 +30,21 @@ impl<'a, S, R: BufRead, W: Write> Settings<'a, S, R, W> {
 			stdin,
 		}
 	}
+
 	fn set_enum_field<T, N>(&mut self, name: N, getter: impl Fn(&mut S) -> &mut T) -> Result<T>
 	where
 		T: Display + Copy + IntoEnumIterator,
 		N: AsRef<str>,
 	{
-		writeln!(self.stdout, "{}: ", name.as_ref())?;
+		use dialoguer::Select;
+
 		let options: Vec<T> = T::iter().collect();
-		for (idx, option) in options.iter().enumerate() {
-			writeln!(&mut self.stdout, "\t{}) {}", idx, option.to_string())?;
-		}
 
-		let mut new_value = String::new();
-		let new_value = loop {
-			write!(self.stdout, "Enter {}: ", name.as_ref())?;
-			self.stdout.flush()?;
-
-			self.stdin.read_line(&mut new_value)?;
-			let possible_value: usize = new_value.trim().parse()?;
-			if (0..options.len()).contains(&(possible_value as usize)) {
-				break possible_value;
-			} else {
-				writeln!(&mut self.stdout, "Enter a 𝑣𝑎𝑙𝑖𝑑 number")?;
-				continue;
-			}
-		};
+		let new_value = Select::with_theme(&ColorfulTheme::default())
+			.with_prompt(name.as_ref())
+			.default(0)
+			.items(&options)
+			.interact()?;
 
 		let old_value = replace(getter(&mut self.settings), options[new_value]);
 		Ok(old_value)
@@ -61,15 +52,16 @@ impl<'a, S, R: BufRead, W: Write> Settings<'a, S, R, W> {
 
 	fn set_value_field<T, N>(&mut self, name: N, getter: impl Fn(&mut S) -> &mut T) -> Result<T>
 	where
-		T: Display + FromStr,
+		T: Display + FromStr + Clone,
 		N: AsRef<str>,
 		<T as FromStr>::Err: std::marker::Sync + std::error::Error + std::marker::Send + 'static,
 	{
-		write!(self.stdout, "Enter your {}: ", name.as_ref())?;
-		self.stdout.flush()?;
-		let mut new_value = String::new();
-		self.stdin.read_line(&mut new_value)?;
-		let new = new_value.trim().parse::<T>()?;
+		use dialoguer::Input;
+
+		let new: T = Input::with_theme(&ColorfulTheme::default())
+			.with_prompt(name.as_ref())
+			.interact()?;
+
 		let old_value = replace(getter(&mut self.settings), new);
 		Ok(old_value)
 	}
@@ -96,9 +88,12 @@ impl<'a, R: BufRead, W: Write> Settings<'a, UserConfig, R, W> {
 	}
 
 	pub(crate) fn set_password(&mut self) -> Result<String> {
-		writeln!(self.stdout, "Enter password: ")?;
-		self.stdout.flush()?;
-		let pass = read_password_with_reader(Some(&mut self.stdin))?;
+		use dialoguer::Password;
+
+		let pass = Password::with_theme(&ColorfulTheme::default())
+			.with_prompt("Password")
+			.with_confirmation("Confirm password", "Passwords mismatching")
+			.interact()?;
 		let old = replace(&mut self.settings.password, pass);
 		Ok(old)
 	}
@@ -151,10 +146,8 @@ mod tests {
 
 		assert_eq!("password", user.password);
 
-		let output = String::from_utf8(output)?;
 		assert_eq!("", old);
 
-		assert_eq!("Enter password: \n", output);
 		Ok(())
 	}
 }
