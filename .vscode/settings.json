@@ -2,13 +2,18 @@
     "cSpell.words": [
         "Datagram",
         "chrono",
+        "confy",
         "deserializes",
         "killswitch",
         "logicals",
         "openvpn",
         "protonmail",
         "protonvpn",
-        "resolvconf"
+        "resolvconf",
+        "structs",
+        "subcommands",
+        "submodule",
+        "submodules"
     ],
-    "explorer.sortOrder": "mixed"
+    "explorer.sortOrder": "mixed",
 }
