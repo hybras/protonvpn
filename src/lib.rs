@@ -30,7 +30,7 @@ pub(crate) mod utils;
 /// Functions for interacting with the `openvpn` binary, including starting / stopping a connection, and creating config files. 
 pub mod vpn;
 
-/// The main function in src.rs is a wrapper of this function.
+/// The main function in main.rs is a wrapper of this function.
 pub fn main<R, W>(
 	opt: CliOptions,
 	config_res: Result<Config, ConfyError>,
