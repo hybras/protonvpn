@@ -1,3 +1,5 @@
+//! The functions in this module are assumed to work, being short, resuable, wrappers around external library. They have been tested by hand, but currently can't be tested programmatically because console doesn't have a testing functionality.
+
 use super::util::{ConnectionProtocol, PlanTier, UserConfig};
 use anyhow::Result;
 use dialoguer::{console::Term, theme::ColorfulTheme};
@@ -42,6 +44,7 @@ impl<'a, S> Settings<'a, S> {
 		Ok(old_value)
 	}
 
+	/// TODO Make this bound clone
 	fn set_value_field<T, N>(&mut self, name: N, getter: impl Fn(&mut S) -> &mut T) -> Result<T>
 	where
 		T: Display + FromStr + Clone,
@@ -89,4 +92,37 @@ impl<'a> Settings<'a, UserConfig> {
 		let old = replace(&mut self.settings.password, pass);
 		Ok(old)
 	}
+}
+
+fn get_enum_field<T, N>(terminal: &Term, name: N) -> Result<T>
+where
+	T: Display + Copy + IntoEnumIterator,
+	N: AsRef<str>,
+{
+	use dialoguer::Select;
+
+	let options: Vec<T> = T::iter().collect();
+
+	let new_value = Select::with_theme(&ColorfulTheme::default())
+		.with_prompt(name.as_ref())
+		.default(0)
+		.items(&options)
+		.interact_on(terminal)?;
+
+	Ok(options[new_value])
+}
+
+fn ask_for<T, N>(terminal: &Term, name: N) -> Result<T>
+where
+	T: Display + FromStr + Clone,
+	N: AsRef<str>,
+	<T as FromStr>::Err: std::marker::Sync + std::error::Error + std::marker::Send + 'static,
+{
+	use dialoguer::Input;
+
+	let new = Input::<T>::with_theme(&ColorfulTheme::default())
+		.with_prompt(name.as_ref())
+		.interact_on(terminal)?;
+
+	Ok(new)
 }
