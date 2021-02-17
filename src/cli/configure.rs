@@ -1,29 +1,18 @@
 use crate::vpn::{settings::Settings, util::UserConfig};
-use anyhow::{Context, Result};
-use std::io::{BufRead, Write};
+use anyhow::Result;
+use console::Term;
+use dialoguer::{theme::ColorfulTheme, Select};
 
 /// Sets and saves new configuration settings, OVERWRITING the old options.
 ///
 /// Reads an int to determine what option is being set. Then calls the appropriate setter from [#Settings]. Does not save it to disk.
 ///
-pub fn configure<R, W>(config: &mut UserConfig, r: &mut R, w: &mut W) -> Result<()>
-where
-	R: BufRead,
-	W: Write,
-{
+pub fn configure(config: &mut UserConfig, terminal: &Term) -> Result<()> {
 	let options = ["Username", "Tier", "Protocol"];
-	writeln!(w, "Options: ")?;
-	for (idx, &opt) in options.iter().enumerate() {
-		writeln!(w, "{}) {}", idx, opt)?;
-	}
-	writeln!(w, "Enter Option: ")?;
-	let mut opt = String::new();
-	r.read_line(&mut opt)?;
-	let opt = opt
-		.trim()
-		.parse::<u8>()
-		.context("You entered a garbage value")?;
-	let mut user_settings = Settings::new(config.clone(), w, r);
+	let opt = Select::with_theme(&ColorfulTheme::default())
+		.items(&options)
+		.interact_on(terminal)?;
+	let mut user_settings = Settings::new(config.clone(), terminal);
 	match opt {
 		0 => {
 			user_settings.set_username()?;

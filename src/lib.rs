@@ -15,7 +15,8 @@ use crate::{
 };
 use anyhow::{Context, Result};
 use confy::ConfyError;
-use std::io::{BufRead, Write};
+use dialoguer::console::Term;
+use std::io::{Write};
 use CliOptions::*;
 
 /// This module contains all the structs for storing args passed in from the command line.
@@ -27,26 +28,21 @@ pub mod cli;
 pub mod constants;
 /// Miscellaneous functions. See the documentation for this module's members instead
 pub(crate) mod utils;
-/// Functions for interacting with the `openvpn` binary, including starting / stopping a connection, and creating config files. 
+/// Functions for interacting with the `openvpn` binary, including starting / stopping a connection, and creating config files.
 pub mod vpn;
 
 /// The main function in main.rs is a wrapper of this function.
-pub fn main<R, W>(
+pub fn main(
 	opt: CliOptions,
 	config_res: Result<Config, ConfyError>,
-	mut r: &mut R,
-	mut w: &mut W,
-) -> Result<()>
-where
-	R: BufRead,
-	W: Write,
-{
+	terminal: &mut Term,
+) -> Result<()> {
 	let pdir = project_dirs();
 
 	if let Ok(mut config) = config_res {
 		match opt {
 			Init => {
-				initialize(&mut config.user, &pdir, &mut r, &mut w)?;
+				initialize(&mut config.user, &pdir, terminal)?;
 				confy::store(APP_NAME, config.user).context("Couldn't store your configuration")?;
 			}
 			Connect(flags) => {
@@ -56,7 +52,7 @@ where
 			Disconnect => {}
 			Status => {}
 			Configure => {
-				configure(&mut config.user, &mut r, &mut w)?;
+				configure(&mut config.user, terminal)?;
 				confy::store(APP_NAME, config.user).context("Couldn't store your configuration")?;
 			}
 			Refresh => {}
@@ -64,10 +60,10 @@ where
 		};
 	} else {
 		if let Init = opt {
-			initialize(&mut Default::default(), &pdir, &mut r, &mut w)?;
+			initialize(&mut Default::default(), &pdir, terminal)?;
 		} else {
 			writeln!(
-				&mut w,
+				terminal,
 				"Unable to load your profile. Try running `protonvpn init` again."
 			)?;
 		}
