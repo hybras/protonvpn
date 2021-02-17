@@ -18,7 +18,7 @@ pub struct Config {
 	pub metadata: MetaData,
 }
 
-/// Hold's all user settings. See the docs on each field to learn more.
+/// Holds all user settings. See the docs on each field to learn more.
 #[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub struct UserConfig {
 	pub(crate) username: String,
