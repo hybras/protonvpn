@@ -22,7 +22,7 @@ paw = "1.0"
 # Interactive Cli
 rpassword = "5.0"
 dialoguer = "0.7"
-console = "0.14"
+console = "0.13" # Dialoguer 0.7 uses version 0.13
 
 # Application
 lazy_static = "1.4"
