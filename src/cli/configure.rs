@@ -31,23 +31,3 @@ pub fn configure(config: &mut UserConfig, terminal: &Term) -> Result<()> {
 	*config = user_settings.into_inner();
 	Ok(())
 }
-
-#[cfg(test)]
-mod tests {
-	use super::*;
-	use std::io::Cursor;
-
-	#[test]
-	fn test_configure() -> Result<()> {
-		let mut stdin = Cursor::new("0\nhybras\n");
-		let mut stdout = Cursor::new(vec![]);
-
-		let expected = UserConfig::new("hybras".into(), "".into());
-		let mut config = UserConfig::default();
-
-		let _ = configure(&mut config, &mut stdin, &mut stdout)
-			.context("Failed to interact with user to get config")?;
-		assert_eq!(expected, config);
-		Ok(())
-	}
-}

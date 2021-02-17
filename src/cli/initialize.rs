@@ -25,29 +25,3 @@ fn ask_for_settings(config: &mut UserConfig, terminal: &Term) -> Result<()> {
 fn create_config_dir(pdir: &ProjectDirs) -> Result<()> {
 	create_dir(pdir.config_dir()).context("Failed to create app config dir")
 }
-
-#[cfg(test)]
-mod tests {
-	use super::*;
-	use std::io::Cursor;
-
-	#[test]
-	fn test_ask_for_settings() -> Result<()> {
-		let mut stdin = Cursor::new("hybras\nshitty password\n2\n1\n");
-		let mut stdout = Cursor::new(vec![]);
-
-		let expected = UserConfig {
-			username: "hybras".into(),
-			password: "shitty password".into(),
-			tier: crate::vpn::util::PlanTier::Plus,
-			protocol: crate::vpn::util::ConnectionProtocol::TCP,
-			..Default::default()
-		};
-		let mut config = UserConfig::default();
-
-		let _ = ask_for_settings(&mut config, &mut stdin, &mut stdout)
-			.context("Failed to interact with user to get config")?;
-		assert_eq!(expected, config);
-		Ok(())
-	}
-}
