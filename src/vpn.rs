@@ -27,8 +27,10 @@ struct OpenVpnConfig {
 	openvpn_protocol: ConnectionProtocol,
 	server_list: Vec<Ipv4Addr>,
 	openvpn_ports: Vec<usize>,
+	/// Whether to use split tunnel or not
 	split: bool,
 	ip_nm_pairs: Vec<IpNm>,
+	/// Use ipv6 and fallback to ipv4, or only use ipv4. Usefull for older devices and networks
 	ipv6_disabled: bool,
 }
 
@@ -62,19 +64,15 @@ where
 		if let Some(split_tunnel_file) = split_tunnel_file {
 			for line in split_tunnel_file.lines() {
 				let line = line.context("line unwrap")?;
-				// TODO String.split_once() once stabilized
-				let tokens = line.splitn(2, "/").collect::<Vec<_>>();
-				let ip_nm = match tokens.as_slice() {
-					[ip, nm] => IpNm {
+				let tokens = line.split_once("/");
+				let ip_nm = match tokens {
+					Some((ip, nm)) => IpNm {
 						ip: ip.parse()?,
 						nm: nm.parse()?,
 					},
-					[ip] => IpNm {
-						ip: ip.parse()?,
+					None => IpNm {
+						ip: line.parse()?,
 						nm: "255.255.255.255".parse()?,
-					},
-					_ => {
-						continue;
 					}
 				};
 				ip_nm_pairs.push(ip_nm);
@@ -84,7 +82,7 @@ where
 
 	let ovpn_conf = OpenVpnConfig {
 		openvpn_protocol: *protocol,
-		serverlist: servers.clone(),
+		server_list: servers.clone(),
 		openvpn_ports: ports.clone(),
 		split: *split_tunnel,
 		ip_nm_pairs,
