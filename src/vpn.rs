@@ -32,7 +32,7 @@ struct OpenVpnConfig {
 }
 
 /// An IPv4 address and a netmask.
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
 struct IpNm {
 	ip: Ipv4Addr,
 	#[serde(default = "IpNm::default_netmask")]
@@ -195,5 +195,19 @@ mod tests {
 		let output = Command::new("/usr/bin/cat").arg(&path).output()?;
 		assert!(output.status.success());
 		Ok(())
+	}
+
+	#[test]
+	fn test_ip_nm_serialize() {
+		use serde_json::from_str;
+		let expected = IpNm {
+			ip: "0.0.0.0".parse().unwrap(),
+			nm: IpNm::default_netmask(),
+		};
+
+		let stringy = r#"{"ip":"0.0.0.0"}"#;
+		let actual: IpNm = from_str(stringy).unwrap();
+
+		assert_eq!(expected, actual);
 	}
 }
