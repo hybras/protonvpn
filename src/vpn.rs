@@ -55,7 +55,6 @@ fn create_openvpn_config<R, W>(
 	servers: &Vec<Ipv4Addr>,
 	protocol: &ConnectionProtocol,
 	ports: &Vec<usize>,
-	split_tunnel: &bool,
 	split_tunnel_file: Option<R>,
 	output_file: &mut W,
 ) -> Result<()>
@@ -75,7 +74,7 @@ where
 		openvpn_protocol: *protocol,
 		server_list: servers.clone(),
 		openvpn_ports: ports.clone(),
-		split: *split_tunnel,
+		split: split_tunnel_file.is_some(),
 		ip_nm_pairs,
 		// TODO check if ipv6 is actually disabled
 		ipv6_disabled: false,
