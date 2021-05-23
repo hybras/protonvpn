@@ -13,8 +13,6 @@ use strum::IntoEnumIterator;
 /// and writes it to the internal config struct. It does not write the settings to disk.
 ///
 /// In the future, this struct should store stdin/stdout handles for buffering, and write settings upon Drop.
-
-// TODO use Term for io
 pub(crate) struct Settings<'a, S> {
 	settings: S,
 	terminal: &'a Term,
