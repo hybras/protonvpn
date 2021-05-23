@@ -135,7 +135,7 @@ impl Default for MetaData {
 	}
 }
 
-/// Information about the current vpn connection. 
+/// Information about the current vpn connection.
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ConnectionInfo {
 	pub(crate) server_id: String,
