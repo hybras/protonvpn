@@ -90,7 +90,7 @@ where
 		ipv6_disabled: false,
 	};
 
-	let rendered = ovpn_conf.render().context("render template")?;
+	let rendered = ovpn_conf.render().context("Rendering config file template failed")?;
 	let mut out = BufWriter::new(output_file);
 	write!(out, "{}", rendered).context("Failed write")?;
 	Ok(())
