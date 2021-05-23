@@ -83,6 +83,7 @@ where
 		ipv6_disabled: false,
 	};
 
+	// TODO Use Template::render_into
 	let rendered = ovpn_conf
 		.render()
 		.context("Rendering config file template failed")?;
