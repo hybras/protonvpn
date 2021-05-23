@@ -25,7 +25,7 @@ pub mod util;
 #[template(path = "openvpn_template.j2")]
 struct OpenVpnConfig {
 	openvpn_protocol: ConnectionProtocol,
-	serverlist: Vec<Ipv4Addr>,
+	server_list: Vec<Ipv4Addr>,
 	openvpn_ports: Vec<usize>,
 	split: bool,
 	ip_nm_pairs: Vec<IpNm>,
