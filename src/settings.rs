@@ -1,6 +1,6 @@
 //! The functions in this module are assumed to work, being short, resuable, wrappers around external library. They have been tested by hand, but currently can't be tested programmatically because console doesn't have a testing functionality.
 
-use super::util::{ConnectionProtocol, PlanTier, UserConfig};
+use crate::vpn::util::{ConnectionProtocol, PlanTier, UserConfig};
 use anyhow::Result;
 use dialoguer::{console::Term, theme::ColorfulTheme};
 
@@ -13,8 +13,6 @@ use strum::IntoEnumIterator;
 /// and writes it to the internal config struct. It does not write the settings to disk.
 ///
 /// In the future, this struct should store stdin/stdout handles for buffering, and write settings upon Drop.
-
-// TODO use Term for io
 pub(crate) struct Settings<'a, S> {
 	settings: S,
 	terminal: &'a Term,
@@ -44,7 +42,6 @@ impl<'a, S> Settings<'a, S> {
 		Ok(old_value)
 	}
 
-	/// TODO Make this bound clone
 	fn set_value_field<T, N>(&mut self, name: N, getter: impl Fn(&mut S) -> &mut T) -> Result<T>
 	where
 		T: Display + FromStr + Clone,

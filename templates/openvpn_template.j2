@@ -27,7 +27,7 @@ client
 dev tun
 proto {{ openvpn_protocol|lower }}
 
-{% for ip in serverlist %}
+{% for ip in server_list %}
 {%- for port in openvpn_ports -%}
 remote {{ ip }} {{ port }}
 {% endfor %}
