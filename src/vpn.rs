@@ -8,6 +8,8 @@ use std::{
 
 use anyhow::{Context, Result};
 use askama::Template;
+use serde::{Deserialize, Serialize};
+use serde_json::from_reader;
 use tempfile::{NamedTempFile, TempPath};
 use util::{ConnectionProtocol, UserConfig};
 
@@ -30,9 +32,17 @@ struct OpenVpnConfig {
 }
 
 /// An IPv4 address and a netmask.
+#[derive(Serialize, Deserialize, PartialEq, Eq, Debug)]
 struct IpNm {
 	ip: Ipv4Addr,
+	#[serde(default = "IpNm::default_netmask")]
 	nm: Ipv4Addr,
+}
+
+impl IpNm {
+	fn default_netmask() -> Ipv4Addr {
+		"255.255.255.255".parse().unwrap()
+	}
 }
 
 /// Stores information about the current connection. Its purpose to prevent the passfile path from being dropped (upon drop the corresponding file is unlinked/deleted)
@@ -45,7 +55,6 @@ fn create_openvpn_config<R, W>(
 	servers: &Vec<Ipv4Addr>,
 	protocol: &ConnectionProtocol,
 	ports: &Vec<usize>,
-	split_tunnel: &bool,
 	split_tunnel_file: Option<R>,
 	output_file: &mut W,
 ) -> Result<()>
@@ -53,39 +62,31 @@ where
 	R: BufRead,
 	W: Write,
 {
-	let mut ip_nm_pairs = vec![];
-
-	if *split_tunnel {
-		if let Some(split_tunnel_file) = split_tunnel_file {
-			for line in split_tunnel_file.lines() {
-				let line = line.context("line unwrap")?;
-				let tokens = line.split_once("/");
-				let ip_nm = match tokens {
-					Some((ip, nm)) => IpNm {
-						ip: ip.parse()?,
-						nm: nm.parse()?,
-					},
-					None => IpNm {
-						ip: line.parse()?,
-						nm: "255.255.255.255".parse()?,
-					}
-				};
-				ip_nm_pairs.push(ip_nm);
-			}
-		}
-	}
+	let (ip_nm_pairs, split) = if let Some(split_tunnel_file) = split_tunnel_file {
+		(
+			from_reader(split_tunnel_file).context(
+				"Failed to deserialize split_tunnel_file. Please check that it is valid json",
+			)?,
+			true,
+		)
+	} else {
+		(vec![], false)
+	};
 
 	let ovpn_conf = OpenVpnConfig {
 		openvpn_protocol: *protocol,
 		server_list: servers.clone(),
 		openvpn_ports: ports.clone(),
-		split: *split_tunnel,
+		split,
 		ip_nm_pairs,
 		// TODO check if ipv6 is actually disabled
 		ipv6_disabled: false,
 	};
 
-	let rendered = ovpn_conf.render().context("Rendering config file template failed")?;
+	// TODO Use Template::render_into
+	let rendered = ovpn_conf
+		.render()
+		.context("Rendering config file template failed")?;
 	let mut out = BufWriter::new(output_file);
 	write!(out, "{}", rendered).context("Failed write")?;
 	Ok(())
@@ -105,7 +106,6 @@ fn connect_helper(
 			ConnectionProtocol::TCP => 443,
 			ConnectionProtocol::UDP => 1194,
 		} as usize],
-		&false,
 		None,
 		&mut File::create(config)?,
 	)?;
@@ -176,7 +176,6 @@ mod tests {
 			&vec![Ipv4Addr::new(108, 59, 0, 40)],
 			&ConnectionProtocol::UDP,
 			&vec![1134],
-			&false,
 			None,
 			&mut output,
 		)?;
@@ -196,5 +195,19 @@ mod tests {
 		let output = Command::new("/usr/bin/cat").arg(&path).output()?;
 		assert!(output.status.success());
 		Ok(())
+	}
+
+	#[test]
+	fn test_ip_nm_serialize() {
+		use serde_json::from_str;
+		let expected = IpNm {
+			ip: "0.0.0.0".parse().unwrap(),
+			nm: IpNm::default_netmask(),
+		};
+
+		let stringy = r#"{"ip":"0.0.0.0"}"#;
+		let actual: IpNm = from_str(stringy).unwrap();
+
+		assert_eq!(expected, actual);
 	}
 }
