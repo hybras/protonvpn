@@ -62,19 +62,22 @@ where
 	R: BufRead,
 	W: Write,
 {
-	let ip_nm_pairs: Vec<IpNm> = if let Some(split_tunnel_file) = split_tunnel_file {
-		from_reader(split_tunnel_file).context(
-			"Failed to deserialize split_tunnel_file. Please check that it is valid json",
-		)?
+	let (ip_nm_pairs, split) = if let Some(split_tunnel_file) = split_tunnel_file {
+		(
+			from_reader(split_tunnel_file).context(
+				"Failed to deserialize split_tunnel_file. Please check that it is valid json",
+			)?,
+			true,
+		)
 	} else {
-		vec![]
+		(vec![], false)
 	};
 
 	let ovpn_conf = OpenVpnConfig {
 		openvpn_protocol: *protocol,
 		server_list: servers.clone(),
 		openvpn_ports: ports.clone(),
-		split: split_tunnel_file.is_some(),
+		split,
 		ip_nm_pairs,
 		// TODO check if ipv6 is actually disabled
 		ipv6_disabled: false,
@@ -102,7 +105,6 @@ fn connect_helper(
 			ConnectionProtocol::TCP => 443,
 			ConnectionProtocol::UDP => 1194,
 		} as usize],
-		&false,
 		None,
 		&mut File::create(config)?,
 	)?;
@@ -173,7 +175,6 @@ mod tests {
 			&vec![Ipv4Addr::new(108, 59, 0, 40)],
 			&ConnectionProtocol::UDP,
 			&vec![1134],
-			&false,
 			None,
 			&mut output,
 		)?;
