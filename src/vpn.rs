@@ -8,6 +8,8 @@ use std::{
 
 use anyhow::{Context, Result};
 use askama::Template;
+use serde::{Deserialize, Serialize};
+use serde_json::from_reader;
 use tempfile::{NamedTempFile, TempPath};
 use util::{ConnectionProtocol, UserConfig};
 
@@ -61,27 +63,13 @@ where
 	R: BufRead,
 	W: Write,
 {
-	let mut ip_nm_pairs = vec![];
-
-	if *split_tunnel {
-		if let Some(split_tunnel_file) = split_tunnel_file {
-			for line in split_tunnel_file.lines() {
-				let line = line.context("line unwrap")?;
-				let tokens = line.split_once("/");
-				let ip_nm = match tokens {
-					Some((ip, nm)) => IpNm {
-						ip: ip.parse()?,
-						nm: nm.parse()?,
-					},
-					None => IpNm {
-						ip: line.parse()?,
-						nm: "255.255.255.255".parse()?,
-					}
-				};
-				ip_nm_pairs.push(ip_nm);
-			}
-		}
-	}
+	let ip_nm_pairs: Vec<IpNm> = if let Some(split_tunnel_file) = split_tunnel_file {
+		from_reader(split_tunnel_file).context(
+			"Failed to deserialize split_tunnel_file. Please check that it is valid json",
+		)?
+	} else {
+		vec![]
+	};
 
 	let ovpn_conf = OpenVpnConfig {
 		openvpn_protocol: *protocol,
