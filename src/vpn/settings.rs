@@ -42,7 +42,6 @@ impl<'a, S> Settings<'a, S> {
 		Ok(old_value)
 	}
 
-	/// TODO Make this bound clone
 	fn set_value_field<T, N>(&mut self, name: N, getter: impl Fn(&mut S) -> &mut T) -> Result<T>
 	where
 		T: Display + FromStr + Clone,
