@@ -30,9 +30,17 @@ struct OpenVpnConfig {
 }
 
 /// An IPv4 address and a netmask.
+#[derive(Serialize, Deserialize)]
 struct IpNm {
 	ip: Ipv4Addr,
+	#[serde(default = "IpNm::default_netmask")]
 	nm: Ipv4Addr,
+}
+
+impl IpNm {
+	fn default_netmask() -> Ipv4Addr {
+		"255.255.255.255".parse().unwrap()
+	}
 }
 
 /// Stores information about the current connection. Its purpose to prevent the passfile path from being dropped (upon drop the corresponding file is unlinked/deleted)
