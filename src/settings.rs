@@ -1,6 +1,6 @@
 //! The functions in this module are assumed to work, being short, resuable, wrappers around external library. They have been tested by hand, but currently can't be tested programmatically because console doesn't have a testing functionality.
 
-use super::util::{ConnectionProtocol, PlanTier, UserConfig};
+use crate::vpn::util::{ConnectionProtocol, PlanTier, UserConfig};
 use anyhow::Result;
 use dialoguer::{console::Term, theme::ColorfulTheme};
 

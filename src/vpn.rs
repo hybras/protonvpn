@@ -13,11 +13,6 @@ use util::{ConnectionProtocol, UserConfig};
 
 use crate::utils::LogicalServer;
 
-/// This module contains a wrapper type, [settings::Settings]. It has methods for creating setters, as well as an impl containing special setters for when it is UserConfig being wrapped.
-///
-/// This module is misplaced, it should be at the top level or under `crate::cli`
-pub mod settings;
-
 /// This module declares all the structs that store application state.
 pub mod util;
 

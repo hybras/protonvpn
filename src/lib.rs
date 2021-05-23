@@ -16,7 +16,7 @@ use crate::{
 use anyhow::{Context, Result};
 use confy::ConfyError;
 use dialoguer::console::Term;
-use std::io::{Write};
+use std::io::Write;
 use CliOptions::*;
 
 /// This module contains all the structs for storing args passed in from the command line.
@@ -30,6 +30,9 @@ pub mod constants;
 pub(crate) mod utils;
 /// Functions for interacting with the `openvpn` binary, including starting / stopping a connection, and creating config files.
 pub mod vpn;
+
+/// This module contains a wrapper type, [settings::Settings]. It has methods for creating setters, as well as an impl containing special setters for when it is UserConfig being wrapped.
+pub mod settings;
 
 /// The main function in main.rs is a wrapper of this function.
 pub fn main(

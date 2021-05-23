@@ -1,6 +1,6 @@
 //! The functions in this module are expected to work. They have been tested by hand, but currently can't be tested programmatically because console doesn't have a testing functionality.
 
-use crate::vpn::{settings::Settings, util::UserConfig};
+use crate::{settings::Settings, vpn::util::UserConfig};
 use anyhow::Result;
 use console::Term;
 use dialoguer::{theme::ColorfulTheme, Select};
